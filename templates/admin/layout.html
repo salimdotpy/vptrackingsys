@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>{{ pageTitle }} - {{siteName()[1]}}</title>
+    <meta charset="utf-8" />
+    <meta name="theme-color" content="#f1b307" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="theme-color" content="#f1b307" />
+    <meta name="description" content="{{siteName[0]}}" />
+    <meta name="author" content="SalimTech Solutions" />
+    <meta name="keywords" content="{{siteName[0]}}, {{siteName[1]}}" />
+    <meta name="robots" content="all" />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
+    <link
+      rel="manifest"
+      href="{{ url_for('static', filename='manifest.json') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/bootstrap.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/mytoast.css') }}"
+    />
+    {% block style_lib %}{% endblock %}
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/animate.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/jquery.dataTables.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/font-awesome.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    {% block style %}{% endblock %}
+  </head>
+  <body class="tiny-scroll">
+    <div class="loading">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="page-wrapper">
+      <aside>
+        <div class="text-center rounded-top-4 py-4 bg-white m-2">
+          <img
+            src="{{ url_for('static', filename='images/favicon.png') }}"
+            alt="site logo"
+            class="rounded-circle mb-3 bg-color shadow"
+            style="
+              border: #f0f 2px solid !important;
+              height: 90px;
+              outline: blue 2px solid !important;
+            "
+            width="90px"
+            id="logo"
+          />
+          <a href="{{ url_for('main.index' ) }}" class="d-block">
+            <h4 class="fs-6 fw-bold">{{siteName()[0]}}</h4>
+          </a>
+        </div>
+        <div
+          class="overflow-y-auto tiny-scroll px-2"
+          style="height: calc(100vh - 290px)"
+        >
+          {% include 'partial/navlinks.html' %}
+        </div>
+        <div
+          class="rounded-bottom-4 bg-white m-2 px-4 py-3 text-center text-truncate text-muted"
+        >
+          <span id="copyYear"></span> &copy; &nbsp;<i>{{siteName()[1]}}</i>
+        </div>
+      </aside>
+      <nav class="navbar fixed-top bg-white">
+        <div class="container-fluid flex-nowrap gap-2">
+          <span class="s_icon d-lg-none">
+            <span
+              class="navbar-toggler-icon"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasNavbar"
+              aria-controls="offcanvasNavbar"
+            ></span>
+          </span>
+          <h3 class="app-name lead text-truncate m-0 fw-bold">
+            {{pageTitle|upper}}
+          </h3>
+          <span class="navbar-toggler-icon opacity-0 d-lg-none"></span>
+          <div
+            class="offcanvas offcanvas-start bg-color"
+            tabindex="-1"
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
+            style="width: 260px"
+          >
+            <div class="offcanvas-header pb-1">
+              <div class="">
+                <img
+                  src="{{ url_for('static', filename='images/favicon.png') }}"
+                  alt="site logo"
+                  class="rounded-circle mb-3"
+                  style="
+                    border: #f0f 2px solid;
+                    height: 70px;
+                    background: #fff;
+                    outline: blue 2px solid !important;
+                  "
+                  width="70px"
+                  id="logo"
+                />
+                <a href="{{ url_for('main.index' ) }}">
+                  <h4 class="fs-6 fw-bold">{{siteName()[0]}}</h4>
+                </a>
+              </div>
+              <button
+                type="button"
+                class="btn-close text-reset align-self-start"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="offcanvas-body overflow-y-auto tiny-scroll">
+              {% include 'partial/navlinks.html' %}
+            </div>
+            <div
+              class="rounded-bottom-4 bg-white m-2 px-4 py-3 text-center text-truncate text-muted"
+            >
+              <span id="copyYear"></span> &copy; &nbsp;<i>{{siteName()[1]}}</i>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <main class="body-wrapper">{% block content %}{% endblock %}</main>
+    </div>
+    {% if admin %}
+    <div
+      class="modal fade"
+      id="editPassword"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalTitleId"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitleId">Change Password</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form method="post" action="{{url_for('admin.password')}}">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="opass" class="form-label">Current Password</label>
+                <input
+                  type="password"
+                  name="opass"
+                  id="opass"
+                  class="form-control"
+                  placeholder="Enter Current Password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="npass" class="form-label">New Password</label>
+                <input
+                  type="password"
+                  name="npass"
+                  id="npass"
+                  class="form-control"
+                  placeholder="Enter New Password"
+                  required
+                />
+              </div>
+              <div>
+                <label for="cpass" class="form-label">Confirm Password</label>
+                <input
+                  type="password"
+                  name="cpass"
+                  id="cpass"
+                  class="form-control"
+                  placeholder="Enter Password Again"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="editProfile"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalTitleId"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document" style="margin-top: 15%">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitleId">Update Profile</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form method="post" action="{{url_for('admin.profile')}}">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="name" class="form-label">Fullname</label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  class="form-control"
+                  placeholder="Enter your name"
+                  value="{{ admin.name }}"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value="{{ admin.email }}"
+                  class="form-control"
+                  placeholder="Enter email"
+                  required
+                />
+              </div>
+              <div>
+                <label for="mobile" class="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  name="mobile"
+                  id="mobile"
+                  value="{{ admin.mobile }}"
+                  class="form-control"
+                  placeholder="Enter phone number"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="{{ url_for('static', filename='js/jquery-2.2.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.dataTables.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% include 'notify.html' %} {% block script_lib %}{% endblock %}
+    <script>
+      $(document).ready(function () {
+        var dd = new Date();
+        $("#copyYear").text(dd.getFullYear());
+      });
+      function imgs(input, destination) {
+        if (input.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function (event) {
+            $(destination).attr("src", event.target.result);
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+    </script>
+
+    {% block on_script %}
+    <script>
+      var startY;
+      var threshold = 150; // Minimum distance to trigger refresh (in pixels)
+      $("body")
+        .on("touchstart", function (e) {
+          startY = e.originalEvent.touches[0].pageY;
+        })
+        .on("touchmove", function (e) {
+          var distance = e.originalEvent.touches[0].pageY - startY;
+          if (distance > threshold) {
+            $(".loading").show();
+          } else {
+            $(".loading").fadeOut("slow");
+          }
+        })
+        .on("touchend", function (e) {
+          var distance = e.originalEvent.changedTouches[0].pageY - startY;
+          if (distance > threshold) {
+            // Perform your refresh action here
+            location.reload(); // For example, reload the page
+          }
+          $(".loading").fadeOut("slow");
+        });
+    </script>
+    {% endblock %} {% block script %}{% endblock %}
+  </body>
+</html>

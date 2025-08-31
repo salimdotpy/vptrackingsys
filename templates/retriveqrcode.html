@@ -1,0 +1,44 @@
+{% extends 'layout.html' %} {% block style_lib %}
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
+{% endblock %} {% block content %}
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card rounded-4 shadow">
+      <div class="card-body">
+        {% if passenger %}
+        <b>{{passenger.name}}'s QR-Code</b>
+        <hr />
+        <div
+          class="d-flex flex-column align-items-center justify-content-center gap-3"
+        >
+          <div id="qrcode" class="p-4 border border-primary bg-white"></div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="downloadQRcode('qrcode', 'qrcode_{{passenger.name}}.png')"
+          >
+            <i class="fa fa-download"></i>
+            Download
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script>
+  $(document).ready(function () {
+    $(".app-name").text("{{ pageTitle }}").addClass("align-self-center");
+    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
+    $("#s_logo").hide();
+  });
+</script>
+{% if passenger %}
+<script>
+  $(document).ready(function () {
+    generateQRCode("qrcode", "{{passenger.qrcode}}|&|{{passenger.id}}");
+  });
+</script>
+{% endif %} {% endblock %}

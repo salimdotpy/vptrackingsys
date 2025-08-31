@@ -1,0 +1,95 @@
+{% extends 'layout.html' %} {% block style %}
+<style>
+  .modal:nth-of-type(even) {
+    z-index: 1051 !important;
+  }
+  .modal-backdrop.show:nth-of-type(even) {
+    z-index: 1052 !important;
+  }
+  .a-flex {
+    display: flex;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+  .a-flex > div,
+  .a-flex > label {
+    flex-basis: 38%;
+    flex-shrink: 0;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="row g-3">
+  <div class="col-md-3">
+    <a href="{{ url_for('auth.login') }}">
+      <div class="card rounded-4 shadow">
+        <div class="card-body">
+          <span class="fa-stack fs-4" style="margin-left: -5px">
+            <i class="fa fa-circle fa-stack-2x text-info"></i>
+            <i class="fa fa-sign-in fa-stack-1x fa-inverse"></i>
+          </span>
+          <p class="card-text fw-bold mb-0">Login</p>
+          <small class="text-muted small">Admin | Vehicle Owner</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3">
+    <a href="{{ url_for('auth.register', who='vehicle') }}">
+      <div class="card rounded-4 shadow">
+        <div class="card-body">
+          <span class="fa-stack fs-4" style="margin-left: -5px">
+            <i class="fa fa-circle fa-stack-2x text-success"></i>
+            <i class="fa fa-bus fa-stack-1x fa-inverse"></i>
+          </span>
+          <p class="card-text fw-bold mb-0">Vehicle Registration</p>
+          <small class="text-muted small">Vehicle & Driver/Owner's Info</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3">
+    <a href="{{ url_for('auth.register') }}">
+      <div class="card rounded-4 shadow">
+        <div class="card-body">
+          <span class="fa-stack fs-4" style="margin-left: -5px">
+            <i class="fa fa-circle fa-stack-2x text-primary"></i>
+            <i class="fa fa-edit fa-stack-1x fa-inverse"></i>
+          </span>
+          <p class="card-text fw-bold mb-0 text-truncate">
+            Passenger Registration
+          </p>
+          <small class="text-muted small">Passenger & NOK Info</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3">
+    <a
+      href="javascript:void()"
+      data-bs-toggle="modal"
+      data-bs-target="#qrcodeModal"
+    >
+      <div class="card rounded-4 shadow">
+        <div class="card-body">
+          <span class="fa-stack fs-4" style="margin-left: -5px">
+            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+            <i class="fa fa-qrcode fa-stack-1x fa-inverse"></i>
+          </span>
+          <p class="card-text fw-bold mb-0">Retrieve QR-Code</p>
+          <small class="text-muted small">Passenger</small>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+<div class="row g-3 mt-2">{% include 'partial/about.html' %}</div>
+{% endblock %} {% block script %}
+<script>
+  $(document).ready(function () {
+    $(".app-name").text("{{pageTitle}}");
+    $(".fa-power-off").hide();
+    $("#a_history").DataTable();
+    $("#a_history_wrapper").addClass("table-responsive");
+  });
+</script>
+{% endblock %}

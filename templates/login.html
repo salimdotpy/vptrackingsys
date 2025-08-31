@@ -1,0 +1,317 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="row">
+  <div class="col-sm-10 col-md-8 col-lg-6 col-xl-4 mx-auto">
+    <!-- Nav tabs -->
+    <ul class="nav nav-pills nav-tabs nav-justified" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link active"
+          id="driver-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#driver"
+          type="button"
+          role="tab"
+          aria-controls="driver"
+          aria-selected="true"
+        >
+          Driver
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          id="admin-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#admin"
+          type="button"
+          role="tab"
+          aria-controls="admin"
+          aria-selected="true"
+        >
+          Admin
+        </button>
+      </li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content pt-4">
+      <div
+        class="tab-pane active"
+        id="driver"
+        role="tabpanel"
+        aria-labelledby="driver-tab"
+      >
+        <div class="card border-0 p-2 p-md-3 rounded-4 shadow">
+          <div class="card-body">
+            <form method="post">
+              <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+              <div class="mb-3">
+                <label for="mobile" class="form-label">Phone Number:</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="mobile"
+                  name="mobile"
+                  placeholder="Enter Phone Number"
+                  required
+                />
+              </div>
+              <div class="mb-3" style="position: relative">
+                <label for="password" class="form-label">Password:</label>
+                <i
+                  class="fa fa-eye seePass"
+                  style="position: absolute; right: 15px; top: 43px"
+                ></i>
+                <input
+                  type="password"
+                  name="password"
+                  class="form-control pass"
+                  id="password"
+                  placeholder="Enter Password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <button
+                  class="btn btn-primary w-100"
+                  name="loginSecurity"
+                  type="submit"
+                >
+                  Login
+                </button>
+              </div>
+              <p class="text-center">
+                Not have account?
+                <a
+                  href="{{ url_for('auth.register', who='vehicle') }}"
+                  class="text-primary"
+                  >Create one!</a
+                >
+              </p>
+              <div class="mb-3">
+                <button type="reset" class="btn btn-danger">Cancel</button>
+                <a
+                  href="javascript:void()"
+                  class="float-end text-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#forgotPasswordModal"
+                >
+                  Forgot Password?
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div
+        class="tab-pane"
+        id="admin"
+        role="tabpanel"
+        aria-labelledby="admin-tab"
+      >
+        <div class="card border-0 p-2 p-md-3 rounded-4 shadow">
+          <div class="card-body">
+            <form method="post" action="{{url_for('admin.login')}}">
+              <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+              <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="username"
+                  name="username"
+                  placeholder="Enter Username"
+                  required
+                />
+              </div>
+              <div class="mb-3" style="position: relative">
+                <label for="passworda" class="form-label">Password:</label>
+                <i
+                  class="fa fa-eye seePass"
+                  style="position: absolute; right: 15px; top: 43px"
+                ></i>
+                <input
+                  type="password"
+                  name="password"
+                  class="form-control pass"
+                  id="passworda"
+                  placeholder="Enter Password"
+                  required
+                />
+              </div>
+              <div class="mb-3 d-flex justify-content-between">
+                <button class="btn btn-primary btn-block order-2" type="submit">
+                  Login
+                </button>
+                <button type="reset" class="btn btn-danger order-1">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<div
+  class="modal fade"
+  id="forgotPasswordModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document" style="margin-top: 20vh">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitleId">Forgot Password Form</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form method="post" action="{{ url_for('main.qrcode' ) }}">
+        <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+        <div class="modal-body">
+          <div id="forgot_error" class="text-danger"></div>
+          <form role="form" id="forgotP">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="mb-3">
+              <label class="control-label">Email Address</label>
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Enter Email Address"
+                name="email"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="control-label">Phone Number</label>
+              <input
+                type="tel"
+                class="form-control"
+                placeholder="Enter Phone Number"
+                name="mobile"
+                required
+              />
+            </div>
+          </form>
+          <form role="form" class="" id="resetP">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="mb-3">
+              <label class="control-label">Create new Password</label>
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Create new Password"
+                name="npass"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="control-label">Confirm Password</label>
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Confirm Password"
+                name="cpass"
+                required
+              />
+              <input type="hidden" name="mobile" id="contact" />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary" onclick="forgotRest()">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function () {
+    let hash = window.location.hash;
+    if (hash) $('ul.nav button[data-bs-target="' + hash + '"]').click();
+    $(".app-name").text("{{ pageTitle }}").addClass("align-self-center");
+    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
+    $("#s_logo").hide();
+  });
+  let _seePass = $(".seePass"),
+    _pass = $(".pass");
+  _seePass.on("click", function () {
+    $(this).toggleClass("fa-eye-slash").toggleClass("fa-eye");
+    if ($(this).hasClass("fa-eye-slash")) _pass.attr("type", "text");
+    else _pass.attr("type", "password");
+  });
+  $("#resetP").hide();
+  let check = true;
+  $("#forgotPasswordModal").on("hidden.bs.modal", function () {
+    window.location.reload();
+  });
+  function forgotRest() {
+    $("#forgot_error").html("");
+    if (check) {
+      $.ajax({
+        url: "/forgetRestPass",
+        method: "post",
+        data: $("#forgotP").serialize() + "&ajax=1&forgotP=1",
+        dataType: "json",
+        success: function (res) {
+          if (res[1]) {
+            check = false;
+            $("#forgotP").hide();
+            $("#forgot_error").html("");
+            $("#resetP").show();
+            $("#contact").val(res[0]);
+          } else {
+            check = true;
+            toast_it({ text: res[0], icon: "error" });
+            $("#forgot_error").html(res[0]);
+            $("#forgotP").show();
+            $("#forgotP")[0].reset();
+            $("#resetP").hide();
+          }
+        },
+        error: function (e) {
+          console.log(e);
+        },
+      });
+    } else {
+      $.ajax({
+        url: "/forgetRestPass",
+        method: "post",
+        data: $("#resetP").serialize() + "&ajax=1&resetP=1",
+        dataType: "json",
+        success: function (res) {
+          if (res[1] == "success") {
+            toast_it({ text: res[0], icon: "success", timer: 1900 });
+            setTimeout(function () {
+              window.location.reload();
+            }, 2000);
+          } else {
+            $("#forgot_error").html(res[0]);
+            toast_it({ text: res[0], icon: "error" });
+            $("#resetP")[0].reset();
+          }
+        },
+        error: function (e) {
+          console.log(e);
+        },
+      });
+    }
+  }
+</script>
+{% endblock %}

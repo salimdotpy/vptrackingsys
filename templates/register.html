@@ -1,0 +1,364 @@
+{% extends 'layout.html' %} {% if passenger %} {% block style_lib %}
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
+{% endblock %} {% endif %} {% block content %} {% if passenger %}
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card rounded-4 shadow">
+      <div class="card-body">
+        <b>{{passenger.name}}'s QR-Code</b>
+        <hr />
+        <div
+          class="d-flex flex-column align-items-center justify-content-center gap-3"
+        >
+          <div id="qrcode" class="p-4 border border-primary bg-white"></div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="downloadQRcode('qrcode', 'qrcode_{{passenger.name}}.png')"
+          >
+            <i class="fa fa-download"></i>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="row">
+  <div class="col-sm-10 col-md-8 col-lg-6 mx-auto">
+    <div class="card border-0 p-2 p-md-3 rounded-4 shadow">
+      <div class="card-body">
+        <p class="text-center fw-bold">{{who|title}} Registration Form</p>
+        <hr />
+        {% if who == "passenger" %}
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="firstname" class="form-label">First Name:</label>
+              <input
+                type="text"
+                id="firstname"
+                name="firstname"
+                class="form-control"
+                placeholder="Enter first name"
+                pattern="^[A-Za-z]+$"
+                title="First name must not contain spaces or special characters"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="lastname" class="form-label">Last Name:</label>
+              <input
+                type="text"
+                id="lastname"
+                name="lastname"
+                class="form-control"
+                placeholder="Enter last name"
+                required
+              />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="mobile" class="form-label">Phone Number:</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="mobile"
+                name="mobile"
+                placeholder="Enter phone number"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email Address:</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Enter email address"
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Residential Address:</label>
+            <textarea
+              class="form-control"
+              id="address"
+              name="address"
+              placeholder="Enter residential address"
+              required
+            ></textarea>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header fw-bold">Next of Kin (nok) Information</div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="nokname" class="form-label">Fullname:</label>
+                <input
+                  type="text"
+                  id="nokname"
+                  name="nokname"
+                  class="form-control"
+                  placeholder="Enter nok fullname"
+                  required
+                />
+              </div>
+              <div class="mb-3 row">
+                <div class="col-md-6">
+                  <label for="nokmobile" class="form-label"
+                    >Phone Number:</label
+                  >
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="nokmobile"
+                    name="nokmobile"
+                    placeholder="Enter nok phone number"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="relationship" class="form-label"
+                    >Relationship:</label
+                  >
+                  <select name="relationship" class="form-control" required>
+                    <option value="">Select Relationship</option>
+                    <option value="father">Father</option>
+                    <option value="mother">Mother</option>
+                    <option value="child">Child</option>
+                    <option value="brother">Brother</option>
+                    <option value="sister">Sister</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <button
+              class="btn btn-primary w-100"
+              name="loginSecurity"
+              type="submit"
+            >
+              Submit
+            </button>
+          </div>
+          <div class="mb-3">
+            <button type="reset" class="btn btn-danger">Cancel</button>
+          </div>
+        </form>
+        {% else %}
+        <form method="post" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+          <div class="mb-3 row g-3">
+            <div class="col-md-6">
+              <label for="vehicleNumber" class="form-label"
+                >Vehicle Number</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="vehicleNumber"
+                name="vehicleNumber"
+                placeholder="e.g. ABC-1234"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="vehicleType" class="form-label">Vehicle Type</label>
+              <select
+                class="form-select"
+                id="vehicleType"
+                name="vehicleType"
+                required
+              >
+                <option value="">-- Select Vehicle Type --</option>
+                <option value="bus">Bus</option>
+                <option value="car">Car</option>
+                <option value="van">Van</option>
+                <option value="truck">Truck</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="model" class="form-label">Model</label>
+              <input
+                type="text"
+                class="form-control"
+                id="model"
+                name="model"
+                placeholder="e.g. Toyota Hiace"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="capacity" class="form-label">Seating Capacity</label>
+              <input
+                type="number"
+                class="form-control"
+                id="capacity"
+                name="capacity"
+                min="1"
+                required
+              />
+            </div>
+            <div class="col-md-12">
+              <label for="plateNumber" class="form-label">Plate Number:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="plateNumber"
+                name="plateNumber"
+                placeholder="e.g. OSUN-1234"
+                required
+              />
+            </div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header fw-bold">
+              Owner's / Driver's Information
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Fullname:</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      class="form-control"
+                      placeholder="Enter fullname"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email Address:</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      name="email"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="uploader" class="form-label">Upload Image</label>
+                  <label
+                    for="uploader"
+                    style="cursor: pointer"
+                    class="position-relative d-block"
+                  >
+                    <img
+                      src="{{ url_for('static', filename='images/noimage.png') }}"
+                      class="img-fluid rounded preview-img border w-100 border-1 border-primary p-1"
+                      alt=""
+                      title="Upload Image"
+                      style="height: 125px"
+                    />
+                    <input
+                      type="file"
+                      name="image"
+                      id="uploader"
+                      accept="image/*"
+                      class="d-none"
+                      onchange="imgs(this, '.preview-img')"
+                    />
+                    <span
+                      class="position-absolute top-50 start-50 translate-middle badge bg-info"
+                      >Click here</span
+                    >
+                  </label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="dmobile" class="form-label">Phone Number:</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="dmobile"
+                  name="mobile"
+                  placeholder="Enter phone number"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label"
+                  >Create Password:</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  placeholder="Enter Password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="cpass" class="form-label">Confirm Password:</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="cpass"
+                  name="password2"
+                  placeholder="Retype Password"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <button class="btn btn-primary w-100" type="submit">Submit</button>
+          </div>
+          <div class="mb-3">
+            <button type="reset" class="btn btn-danger">Cancel</button>
+            <span class="float-end">
+              Already have account?
+              <a href="{{ url_for('auth.login') }}" class="text-primary"
+                >click here!</a
+              >
+            </span>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %} {% block script %} {% if passenger %}
+<script>
+  $(document).ready(function () {
+    var hash = window.location.hash;
+    if (hash) $('ul.nav a[href="' + hash + '"]').click();
+    $(".app-name").text("Download QR-Code").addClass("align-self-center");
+    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
+    $("#s_logo").hide();
+
+    generateQRCode("qrcode", "{{passenger.qrcode}}|&|{{passenger.id}}");
+  });
+</script>
+{% else %}
+<script>
+  $(document).ready(function () {
+    var hash = window.location.hash;
+    if (hash) $('ul.nav a[href="' + hash + '"]').click();
+    $(".app-name").text("{{ pageTitle }}").addClass("align-self-center");
+    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
+    $("#s_logo").hide();
+  });
+  var _seePass = $(".seePass"),
+    _pass = $(".pass");
+  _seePass.on("click", function () {
+    $(this).toggleClass("fa-eye-slash").toggleClass("fa-eye");
+    if ($(this).hasClass("fa-eye-slash")) _pass.attr("type", "text");
+    else _pass.attr("type", "password");
+  });
+</script>
+{% endif %} {% endblock %}

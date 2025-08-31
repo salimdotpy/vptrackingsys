@@ -1,0 +1,113 @@
+{% extends 'admin/layout.html' %} {% block style %}
+<style>
+  .modal:nth-of-type(even) {
+    z-index: 1051 !important;
+  }
+  .modal-backdrop.show:nth-of-type(even) {
+    z-index: 1052 !important;
+  }
+  .a-flex {
+    display: flex;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+  .a-flex > div,
+  .a-flex > label {
+    flex-basis: 38%;
+    flex-shrink: 0;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="row g-3">
+  <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
+    <a href="">
+      <div
+        class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-warning"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fa-stack fs-4" style="margin-left: -5px">
+              <i class="fa fa-circle fa-stack-2x text-warning"></i>
+              <i class="fa fa-bus fa-stack-1x fa-inverse"></i>
+            </span>
+            <h2 class="fs-1 m-0 text-warning fw-bold">
+              {{ widget.new_driver }}
+            </h2>
+          </div>
+          <p class="card-text fw-bold mb-0">Unverified drivers</p>
+          <small class="text-muted small">View Unverified drivers</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
+    <a href="">
+      <div
+        class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-success"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fa-stack fs-4" style="margin-left: -5px">
+              <i class="fa fa-circle fa-stack-2x text-success"></i>
+              <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+            </span>
+            <h2 class="fs-1 m-0 text-success fw-bold">
+              {{ widget.passengers }}
+            </h2>
+          </div>
+          <p class="card-text fw-bold mb-0">All Passengers</p>
+          <small class="text-muted small">View now</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
+    <a href="">
+      <div
+        class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-info"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fa-stack fs-4" style="margin-left: -5px">
+              <i class="fa fa-circle fa-stack-2x text-info"></i>
+              <i class="fa fa-plane fa-stack-1x fa-inverse"></i>
+            </span>
+            <h2 class="fs-1 m-0 text-info fw-bold">5</h2>
+          </div>
+          <p class="card-text fw-bold mb-0">Ongoing Trips</p>
+          <small class="text-muted small">View now</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
+    <a href="">
+      <div
+        class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-success"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fa-stack fs-4" style="margin-left: -5px">
+              <i class="fa fa-circle fa-stack-2x text-success"></i>
+              <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+            </span>
+            <h2 class="fs-1 m-0 text-success fw-bold">5</h2>
+          </div>
+          <p class="card-text fw-bold mb-0">All Passengers</p>
+          <small class="text-muted small">View now</small>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+<div class="row g-3 mt-2">{% include 'partial/about.html' %}</div>
+{% endblock %} {% block script %}
+<script>
+  $(document).ready(function () {
+    $(".app-name").text("{{pageTitle}}");
+    $(".fa-power-off").hide();
+    $("#a_history").DataTable();
+    $("#a_history_wrapper").addClass("table-responsive");
+  });
+</script>
+{% endblock %}

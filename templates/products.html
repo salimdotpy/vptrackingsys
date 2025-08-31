@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+{% block title%} All Products {% endblock %}
+
+{% block content %}
+<div class="container pt-3">
+    {% include 'msg.html' %}
+    <div class="row justify-content-center align-items-center g-2">
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex">
+                    <strong>Products Table</strong>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="allproduct" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>SN</th>
+                                    <th>Name</th>
+                                    <th>Company</th>
+                                    <th>Description</th>
+                                    <th>Image</th>
+                                    <th>Price</th>
+                                    <th>ExpirationStatus</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prod in product %}
+                                <tr>
+                                    <td>{{loop.index}}</td>
+                                    <td>{{prod.name}}</td>
+                                    <td>{{prod.company}}</td>
+                                    <td>{{prod.description}}</td>
+                                    <td class="text-center">
+                                        <img src="/static/images/{{prod.image}}" alt="{{prod.name}}" class="w-25 " />
+                                    </td>
+                                    <td><span class="naira">{{prod.price}}</span></td>
+                                    <td>
+                                        {% if prod.exp_status <= 0 %}
+                                        <span class="badge rounded-pill text-bg-danger">Expired</span>
+                                        {% elif prod.exp_status <= 5 %}
+                                        <span class="badge rounded-pill text-bg-warning">About to Expire</span>
+                                        {% else %}
+                                        <span class="badge rounded-pill text-bg-success">Not Expire</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{prod.date_created.strftime("%a, %d %b %Y at %H:%M")}}</td>
+                                    <td>
+                                        <a class="btn btn-primary btn-sm" href="/edit-product/{{prod.id}}">Edit</a>
+                                        <form method="post" onsubmit="return confirm('Are you sure delete this record?')?true:false">
+                                            <input type="hidden" name="id" value="{{prod.id}}" />
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="100%">No record found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">&copy; 2024 PEMS</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    
+    
+</script>
+{% endblock %}

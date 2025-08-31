@@ -1,0 +1,10 @@
+flask
+flask-cors
+flask-sqlalchemy
+flask-restful
+Flask-WTF
+mysqlclient
+mysql-connector-python
+Flask-Migrate
+Flask-JWT-Extended
+pillow

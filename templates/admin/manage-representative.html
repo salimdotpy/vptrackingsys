@@ -1,0 +1,361 @@
+{% extends 'admin/layout.html' %}
+{% block style %}
+<style>
+    .modal:nth-of-type(even) {
+        z-index: 1051 !important;
+    }
+
+    .modal-backdrop.show:nth-of-type(even) {
+        z-index: 1052 !important;
+    }
+
+    .a-flex {
+        display: flex;
+        justify-content: space-between;
+        overflow-x: auto;
+    }
+
+    .a-flex>div,
+    .a-flex>label {
+        flex-basis: 38%;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="row">
+    {% if addNew %}
+    <ol class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin.dashboard' ) }}">Dashboard</a>
+        </li>
+        <li class="active">{{pageTitle}}</li>
+    </ol>
+    <div class="col-md-12">
+        <div class="panel z-depth-1">
+            <div class="panel-body">
+                <b>{{pageTitle}}</b>
+                <hr>
+                <form style="margin-top: 10px;" class="" method="post">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">School Information</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row" id="school">
+                                <div class="form-group col-md-6 {%if error and error.school %}has-error{%endif%}">
+                                    <label class="control-label">School name:</label>
+                                    <input type="text" name="school" class="form-control"
+                                        placeholder="Enter school name">
+                                    {%if error and error.school %}
+                                    <span class="help-block">{{error.school}}</span>
+                                    {%endif%}
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label">Is Multi-campus?</label>
+                                    <div class="toggle-con">
+                                        <input type="checkbox" name="mcampus" id="toggler" hidden>
+                                        <div class="toggle-wrap toggle-transform" onclick="toggleCampus(this)">
+                                            <label for="toggler" class="toggle-lbl bg-success text-success">Yes</label>
+                                            <div class="divider"></div>
+                                            <label for="toggler" class="toggle-lbl bg-danger text-danger">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Representative Information</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group {%if error and error.name %}has-error{%endif%}">
+                                <label class="control-label">Fullname:</label>
+                                <input type="text" name="name" class="form-control" placeholder="Enter your name">
+                                {%if error and error.name %}
+                                <span class="help-block">{{error.name}}</span>
+                                {%endif%}
+                            </div>
+                            <div class="form-group {%if error and error.email %}has-error{%endif%}">
+                                <label class="control-label">Email Address:</label>
+                                <input type="email" name="email" class="form-control" placeholder="Enter email address">
+                                {%if error and error.email %}
+                                <span class="help-block">{{error.email}}</span>
+                                {%endif%}
+                            </div>
+                            <div class="form-group {%if error and error.mobile %}has-error{%endif%}">
+                                <label class="control-label">Phone Number:</label>
+                                <input type="tel" name="mobile" class="form-control" placeholder="Enter Phone Number">
+                                {%if error and error.mobile %}
+                                <span class="help-block">{{error.mobile}}</span>
+                                {%endif%}
+                            </div>
+                            <div class="form-group {%if error and error.password %}has-error{%endif%}">
+                                <label>Password:</label>
+                                <input type="password" class="form-control pass" name="password"
+                                    placeholder="Enter Password" required />
+                                {%if error and error.password %}
+                                <span class="help-block">{{error.password}}</span>
+                                {%endif%}
+                            </div>
+                            <div class="form-group {%if error and error.password %}has-error{%endif%}">
+                                <label>Confirm Password:</label>
+                                <input type="password" class="form-control" name="password2"
+                                    placeholder="Enter Password" required />
+                                {%if error and error.password %}
+                                <span class="help-block">{{error.password}}</span>
+                                {%endif%}
+                            </div>
+                            <div class="form-group">
+                                <button name="addSchool" class="btn btn-primary btn-block" type="submit">
+                                    Submit
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button type="reset" class="btn btn-danger">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <ol class="breadcrumb">
+        <li>
+            <a href="{{ url_for('admin.dashboard' ) }}">Dashboard</a>
+        </li>
+        <li class="active">{{pageTitle}}</li>
+    </ol>
+    <div class="col-md-12">
+        <div class="panel z-depth-1">
+            <div class="panel-body">
+                <b>{{pageTitle}}</b>
+                <hr>
+                <div class="table-responsive">
+                    <table id="a_history" class="table table-bordered table-hover" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>School</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if representative %}
+                            {% for rep in representative %}
+                            <tr>
+                                <td>{{loop.index}}</td>
+                                <td>{{rep.name}}</td>
+                                <td>{{rep.email}}</td>
+                                <td>{{rep.mobile}}</td>
+                                <td>
+                                    {{rep.school.name}} (<b>{{rep.school.campuses|count}} Campus</b>)
+                                </td>
+                                <td>{{rep.updated_at.strftime("%a, %d %b %Y at %H:%M")}}</td>
+                                <td class="text-right">
+                                    <div class="btn-group" style="width: 80px;">
+                                        <a class="btn btn-primary btn-sm" href="#representativeCRUD" data-toggle="modal"
+                                            data-action="update" onclick="editRepresentative('{{rep.id}}')">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a class="btn btn-danger btn-sm" href="#deleteModal" data-toggle="modal"
+                                            data-id="{{rep.id}}">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {%else%}
+                            <tr>No record found</tr>
+                            {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel z-depth-1 about">
+            <div class="panel-body">
+                <b>About Us</b>
+                <hr>
+                <p class="text-center" id="about">
+                    <b>{{siteName()[0]}} ({{siteName()[1]}})</b><br><br>
+                    Design and Developed by
+                    <a href="#studentListModal" data-toggle="modal"><b>HNDII 2023/2024</b></a>
+                    Set and Supervised by
+                    <b>Engr. Abdulwakil Adekunle Kasali.</b> All rights reserved.
+                    For Enquiry, call <a href="tel:+2347030337708" class="text-primary">+2347030337708</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block script %}
+<div id="representativeCRUD" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Add New Representative</h4>
+            </div>
+            <div class="modal-body" id="RepresentativeData">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Confirmation</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.app-name').text("{{pageTitle}}");
+        $('.fa-power-off').hide();
+        $('#a_history').DataTable();
+        $('#a_history_wrapper').addClass('table-responsive');
+    });
+
+    $("#deleteModal").on('show.bs.modal', function (event) {
+        var ele = $(event.relatedTarget);
+        $(this).attr('style', ''); $(this).find('.modal-dialog').attr('style', '');
+        $(this).find('.modal-footer').show();
+        $(this).find('.modal-title').text("Confirmation");
+        $(this).find('.modal-body').html(`
+        Are you sure you want to delete?<br/><br/>
+        <b>The following will be deleted as well:</b>
+        <ol style="padding-left: 3rem">
+            <li>Its School</li>
+            <li>Its Campuses</li>
+            <li>And its Building</li>
+        </ol>
+        `);
+        $(this).find('.modal-footer').html(
+            '<form method="post">' +
+            '<input type="hidden" name="csrf_token" value="{{csrf_token()}}">' +
+            '<input type="hidden" name="id" value="' + ele.data('id') + '">' +
+            '<button class="btn btn-danger" data-dismiss="modal">NO</button> ' +
+            '<button class="btn btn-primary" type="submit" name="deleteRepresentative">YES</button>' +
+            '</form>');
+    });
+    $("#representativeCRUD").on('show.bs.modal', function (event) {
+        var ele = $(event.relatedTarget);
+        var action = ele.data('action');
+        $(this).attr('style', ''); $(this).find('.modal-dialog').attr('style', 'margin-top: 15%');
+        if (action == "update") {
+            $(this).find('.modal-title').text("Update Representative");
+            $(this).find('.modal-footer').html(''); $(this).find('.modal-footer').hide();
+        } else {
+            $(this).find('.modal-title').text("Add New Representative");
+            $(this).find('#RepresentativeData').html(
+                `
+                <form class="" method="post">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                    <div class="form-group">
+                        <label class="required">Fullname:</label>
+                        <input name="name" class="form-control" placeholder="Enter Representative name" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Email Address:</label>
+                        <input type="email" name="email" class="form-control" placeholder="Enter email address" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Phone number:</label>
+                        <input type="tel" name="mobile" class="form-control" placeholder="Enter phone number" required />
+                    </div>
+                    <div class="form-group">
+                        <button name="addRepresentative" class="btn btn-primary btn-block" type="submit">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+                `
+            )
+        }
+    });
+    function editRepresentative(id) {
+        $.ajax({
+            type: 'get', url: '', data: 'uid=' + id + '&editRepresentative=1',
+            success: function (data) {
+                data ? $('#RepresentativeData').html(data) : '';
+            }
+        });
+    }
+</script>
+<script>
+    function toggleCampus(e) {
+        const toggleElement = $(e);
+        const campus_con = `
+            <div class="form-group {%if error and error.campuses %}has-error{%endif%}" id="campuses">
+                <label class="control-label">Campuses</label>
+                <span class="help-block">At least 2 campus is required</span>
+                {%if error and error.campuses %}
+                <span class="help-block">{{error.campuses}}</span>
+                {%endif%}
+                <div class="form-group">
+                    <div class="input-group">
+                        <input name="campuses[]" class="form-control" placeholder="Enter campus name" value="" required>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-danger" disabled><i
+                                    class="fa fa-times-circle"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input name="campuses[]" class="form-control"
+                            placeholder="Enter campus name" value="" required>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-danger" disabled><i
+                                    class="fa fa-times-circle"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-success pull-right" onclick="addCampus(this)">add</button>
+            </div>
+        `;
+        toggleElement.hasClass('toggle-transform') ?
+            $('#school').after(campus_con) :
+            $('#campuses').remove();
+        toggleElement.toggleClass('toggle-transform');
+
+    }
+
+    function addCampus(e) {
+        const campusCon = `
+            <div class="form-group">
+                <div class="input-group">
+                    <input name="campuses[]" class="form-control" placeholder="Enter campus name" value="" required>
+                    <span class="input-group-btn" onclick="removeCampus(this)">
+                        <button type="button" class="btn btn-danger"><i class="fa fa-times-circle"></i></button>
+                    </span>
+                </div>
+            </div>`;
+        $(e).before(campusCon);
+    }
+    function removeCampus(e) {
+        $(e).parent().parent().remove();
+    }
+</script>
+{% endblock %}
