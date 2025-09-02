@@ -220,6 +220,61 @@
             </div>
           </div>
           <div class="card mb-3">
+            <div class="card-header fw-bold">Garage Information</div>
+            <div class="card-body">
+              <p class="form-text text-muted">At least 2 Garage is required</p>
+              <div class="row g-3" id="garage">
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter garage name"
+                      name="garages[]"
+                    />
+                    <button
+                      class="btn btn-danger"
+                      type="button"
+                      title="Remove garage"
+                      onclick="removeGarage(this)"
+                      disabled
+                    >
+                      <i class="fa fa-times-circle"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter garage name"
+                      name="garages[]"
+                    />
+                    <button
+                      class="btn btn-danger"
+                      type="button"
+                      title="Remove garage"
+                      onclick="removeGarage(this)"
+                      disabled
+                    >
+                      <i class="fa fa-times-circle"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="addGarage(this)"
+                  >
+                    add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-3">
             <div class="card-header fw-bold">
               Owner's / Driver's Information
             </div>
@@ -360,5 +415,20 @@
     if ($(this).hasClass("fa-eye-slash")) _pass.attr("type", "text");
     else _pass.attr("type", "password");
   });
+  function addGarage(e) {
+    const garageCon = `
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Enter garage name" name="garages[]" />
+            <button class="btn btn-danger" type="button" title="Remove garage" onclick="removeGarage(this)">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+    </div>`;
+    $(e).parent().before(garageCon);
+  }
+  function removeGarage(e) {
+    $(e).parent().parent().remove();
+  }
 </script>
 {% endif %} {% endblock %}

@@ -75,6 +75,7 @@ def register(who="passenger"):
             email = request.form.get("email")
             mobile = request.form.get("mobile").strip()
             image = request.files.get("image")
+            garages = request.form.getlist('garages[]')
             password = request.form['password']
             password2 = request.form['password2']
             vehicleNumber = request.form.get("vehicleNumber").strip()
@@ -92,6 +93,8 @@ def register(who="passenger"):
                     msg = ['Please fill out the form!', 'error']
             if checkEmail:
                 msg = ["This email has been taken, please try another one", 'error']
+            if not garages or len(garages) < 2:
+                msg = ["At least 2 garage name is required", 'error']
             elif not re.match(r'[^@]+@[^@]+\.[^@]+', email) or len(email) > 30:
                 msg = ['Invalid email address!', 'error']
             elif password != password2:
@@ -103,7 +106,7 @@ def register(who="passenger"):
             elif not msg:
                 try:
                     image = uploadImage(image, imagePath('driver'), getImageSize(image)) if image else None
-                    vehicle_info = dict(vehicleNumber=vehicleNumber, vehicleType=vehicleType, model=model, capacity=capacity, plateNumber=plateNumber)
+                    vehicle_info = dict(vehicleNumber=vehicleNumber, vehicleType=vehicleType, model=model, capacity=capacity, plateNumber=plateNumber, garages=garages)
                     vehicle = Vehicle(name=name, email=email, mobile=mobile, image=image, vehicle_info=vehicle_info)
                     vehicle.set_password(password)
                     db.session.add(vehicle)
