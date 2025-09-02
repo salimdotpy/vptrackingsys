@@ -2,51 +2,10 @@
 <html lang="en-US">
   <head>
     <title>{{ pageTitle }} - {{siteName()[1]}}</title>
-    <meta charset="utf-8" />
-    <meta name="theme-color" content="#f1b307" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    />
-    <meta name="theme-color" content="#f1b307" />
-    <meta name="description" content="{{siteName[0]}}" />
-    <meta name="author" content="SalimTech Solutions" />
-    <meta name="keywords" content="{{siteName[0]}}, {{siteName[1]}}" />
-    <meta name="robots" content="all" />
-    <link
-      rel="shortcut icon"
-      href="{{ url_for('static', filename='images/favicon.png') }}"
-    />
-    <link
-      rel="manifest"
-      href="{{ url_for('static', filename='manifest.json') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/bootstrap.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/mytoast.css') }}"
-    />
-    {% block style_lib %}{% endblock %}
+    {% include 'partial/seo.html' %} {% block style_lib %}{% endblock %}
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/animate.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/jquery.dataTables.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/font-awesome.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
     />
     {% block style %}{% endblock %}
   </head>
