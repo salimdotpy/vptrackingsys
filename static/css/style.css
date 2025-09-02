@@ -73,14 +73,12 @@ a > .card.about:hover {
   background: var(--bg-inverse);
 }
 
-nav a,
-aside a {
+.aside a {
   transition: 0.3s;
 }
-nav a:focus,
-nav a:hover,
-aside a:hover,
-aside a:focus {
+
+.aside a:hover,
+.aside a:focus {
   background: #796c996c;
   color: purple;
 }
