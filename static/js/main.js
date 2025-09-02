@@ -304,25 +304,50 @@ function generateQRCode(eleId = "qrcode", text = "test") {
 }
 
 function downloadQRcode(eleId = "qrcode", filename = "qrcode.png") {
-  let $qrImg = $(`#${eleId}`).find("img, canvas").first();
-  let node = document.getElementById(eleId);
-  if ($qrImg.length) {
-    domtoimage
-      .toPng(node)
-      .then(function (dataUrl) {
-        let link = $("<a>")
-          .attr("href", dataUrl)
-          .attr("download", filename)
-          .appendTo("body");
-        link[0].click(); // trigger click
-        link.remove(); // clean up
-        toast_it({ text: "Downloaded Successfully", icon: "success" });
-      })
-      .catch(function (error) {
-        console.error("oops, something went wrong!", error);
-        toast_it({ text: "oops, something went wrong!", icon: "error" });
-      });
-  } else {
+  let qrElement = document.querySelector(`#${eleId}`);
+  if (!qrElement) {
     toast_it({ text: "QR Code not generated yet.", icon: "error" });
+    return;
   }
+
+  domtoimage
+    .toPng(qrElement)
+    .then(function (dataUrl) {
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast_it({ text: "Downloaded Successfully", icon: "success" });
+    })
+    .catch(function () {
+      // fallback: try canvas with white padding + border
+      let canvasEl = document.querySelector(`#${eleId} canvas`);
+      if (!canvasEl) throw new Error("Canvas not found");
+
+      $(canvasEl).addClass("p-4 bg-white border border-success");
+
+      return domtoimage
+        .toPng(canvasEl)
+        .then(function (dataUrl) {
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          toast_it({ text: "Downloaded Successfully", icon: "success" });
+        })
+        .catch(function (error) {
+          console.error("oops, something went wrong!", error);
+          toast_it({ text: "oops, something went wrong!", icon: "error" });
+        })
+        .finally(function () {
+          // always clean up classes
+          $(canvasEl).removeClass("p-4 bg-white border border-success");
+        });
+    });
 }
