@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from ..models import Passenger, Vehicle, db
 from ..utils import to_dict, uploadImage, getImageSize, imagePath
 import re
@@ -8,14 +8,19 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
+        mobile = request.form.get("mobile")
         password = request.form.get("password")
-        # Placeholder logic
-        if username == "admin" and password == "password":
-            flash("Login successful!", "success")
-            return redirect(url_for("main.index"))
-        else:
-            flash("Invalid credentials", "danger")
+        # Validation checks
+        driver = Vehicle.query.filter_by(mobile=mobile).first()
+        if driver is None or not driver.check_password(password):
+            flash('Invalid Credential', ('error'))
+            return redirect(request.referrer)
+        elif not driver.status:
+            flash('Contact Admin to activate your account', ('info'))
+            return redirect(request.referrer)
+        session['driver'] = to_dict(driver, Vehicle)
+        flash('You\'ve successfully logged in!', ('success'))
+        return redirect(url_for('driver.dashboard'))
     return render_template("login.html", pageTitle="Login Page")
 
 @auth_bp.route("/register", methods=["GET", "POST"])

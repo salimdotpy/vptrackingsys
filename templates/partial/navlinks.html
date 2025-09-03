@@ -79,7 +79,72 @@
   </a>
 </div>
 
-{% elif driver %} {% else %}
+{% elif driver %}
+
+<div class="mt-3 bg-white rounded-4 overflow-y-hidden">
+  <a
+    href="{{url_for('driver.dashboard')}}"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-dashboard fs-5"></i>
+    <span>Dashboard</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+  <a
+    href="{{url_for('driver.dashboard')}}"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-plus-circle fs-5"></i>
+    <span>Add New Trip</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+  <a
+    href="{{url_for('driver.dashboard')}}"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-plane fs-5"></i>
+    <span>Manage Trip</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+  <a
+    href="{{url_for('driver.dashboard')}}"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-list fs-5"></i>
+    <span class="text-truncate">Manage Trip Log</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+  <a
+    href="javascript:void()"
+    data-bs-toggle="modal"
+    data-bs-target="#editProfile"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-edit fs-5"></i>
+    <span>Update Profile</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+  <a
+    href="javascript:void()"
+    data-bs-toggle="modal"
+    data-bs-target="#editPassword"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-lock fs-5"></i>
+    <span>Change Password</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+  <a
+    href="{{url_for('driver.logout')}}"
+    class="py-3 px-3 d-flex align-items-center gap-3"
+  >
+    <i class="fa fa-sign-out fs-5"></i>
+    <span>Logout</span>
+    <i class="fa fa-angle-right ms-auto"></i>
+  </a>
+</div>
+
+{% else %}
 <div class="mt-3 bg-white rounded-4 overflow-y-hidden">
   <a
     href="{{ url_for('main.index' ) }}"

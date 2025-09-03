@@ -14,3 +14,9 @@ def dashboard():
         return render_template('dashboard.html', pageTitle=pageTitle, driver=driver, widget=widget)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login'))
+
+@drive_bp.route("/logout")
+def logout():
+    session.pop('driver', None)
+    flash('You have successfully logged out!', ('warning'))
+    return redirect(url_for('auth.login'))
