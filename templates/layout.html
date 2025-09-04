@@ -169,6 +169,59 @@
         </div>
       </div>
     </div>
+    <div
+      class="modal fade"
+      id="studentListModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalTitleId"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitleId">Developer List</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+            <ul class="list-group">
+              <li
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              >
+                NAME
+                <span class="badge bg-info badge-pill">MATRIC NO</span>
+              </li>
+              <li
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              >
+                NAME
+                <span class="badge bg-info badge-pill">MATRIC NO</span>
+              </li>
+              <li
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              >
+                NAME
+                <span class="badge bg-info badge-pill">MATRIC NO</span>
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Bootstrap JavaScript Libraries -->
     <script src="{{ url_for('static', filename='js/jquery-2.2.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
@@ -178,14 +231,14 @@
     <script>
       $(document).ready(function () {
         var dd = new Date();
-        $("#copyYear").text(dd.getFullYear());
+        $('#copyYear').text(dd.getFullYear());
       });
 
       function imgs(input, destination) {
         if (input.files[0]) {
           var reader = new FileReader();
           reader.onload = function (event) {
-            $(destination).attr("src", event.target.result);
+            $(destination).attr('src', event.target.result);
           };
           reader.readAsDataURL(input.files[0]);
         }
@@ -195,25 +248,25 @@
     <script>
       var startY;
       var threshold = 150; // Minimum distance to trigger refresh (in pixels)
-      $("body")
-        .on("touchstart", function (e) {
+      $('body')
+        .on('touchstart', function (e) {
           startY = e.originalEvent.touches[0].pageY;
         })
-        .on("touchmove", function (e) {
+        .on('touchmove', function (e) {
           var distance = e.originalEvent.touches[0].pageY - startY;
           if (distance > threshold) {
-            $(".loading").show();
+            $('.loading').show();
           } else {
-            $(".loading").fadeOut("slow");
+            $('.loading').fadeOut('slow');
           }
         })
-        .on("touchend", function (e) {
+        .on('touchend', function (e) {
           var distance = e.originalEvent.changedTouches[0].pageY - startY;
           if (distance > threshold) {
             // Perform your refresh action here
             location.reload(); // For example, reload the page
           }
-          $(".loading").fadeOut("slow");
+          $('.loading').fadeOut('slow');
         });
     </script>
     {% endblock %} {% block script %}{% endblock %}

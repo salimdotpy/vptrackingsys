@@ -20,7 +20,7 @@
 {% endblock %} {% block content %}
 <div class="row g-3">
   <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
-    <a href="">
+    <a href="{{ url_for('admin.drivers', status=0) }}">
       <div
         class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-warning"
       >
@@ -41,7 +41,7 @@
     </a>
   </div>
   <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
-    <a href="{{ url_for('admin.passengers' ) }}">
+    <a href="{{ url_for('admin.drivers', status=1) }}">
       <div
         class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-success"
       >
@@ -49,9 +49,30 @@
           <div class="d-flex align-items-center justify-content-between">
             <span class="fa-stack fs-4" style="margin-left: -5px">
               <i class="fa fa-circle fa-stack-2x text-success"></i>
-              <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+              <i class="fa fa-car fa-stack-1x fa-inverse"></i>
             </span>
             <h2 class="fs-1 m-0 text-success fw-bold">
+              {{ widget.old_driver }}
+            </h2>
+          </div>
+          <p class="card-text fw-bold mb-0">Verified drivers</p>
+          <small class="text-muted small">View verified drivers</small>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
+    <a href="{{ url_for('admin.passengers' ) }}">
+      <div
+        class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-primary"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fa-stack fs-4" style="margin-left: -5px">
+              <i class="fa fa-circle fa-stack-2x text-primary"></i>
+              <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+            </span>
+            <h2 class="fs-1 m-0 text-primary fw-bold">
               {{ widget.passengers }}
             </h2>
           </div>
@@ -80,34 +101,15 @@
       </div>
     </a>
   </div>
-  <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
-    <a href="">
-      <div
-        class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-success"
-      >
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between">
-            <span class="fa-stack fs-4" style="margin-left: -5px">
-              <i class="fa fa-circle fa-stack-2x text-success"></i>
-              <i class="fa fa-users fa-stack-1x fa-inverse"></i>
-            </span>
-            <h2 class="fs-1 m-0 text-success fw-bold">5</h2>
-          </div>
-          <p class="card-text fw-bold mb-0">All Passengers</p>
-          <small class="text-muted small">View now</small>
-        </div>
-      </div>
-    </a>
-  </div>
 </div>
 <div class="row g-3 mt-2">{% include 'partial/about.html' %}</div>
 {% endblock %} {% block script %}
 <script>
   $(document).ready(function () {
-    $(".app-name").text("{{pageTitle}}");
-    $(".fa-power-off").hide();
-    $("#a_history").DataTable();
-    $("#a_history_wrapper").addClass("table-responsive");
+    $('.app-name').text('{{pageTitle}}');
+    $('.fa-power-off').hide();
+    $('#a_history').DataTable();
+    $('#a_history_wrapper').addClass('table-responsive');
   });
 </script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from ..models import Passenger, Vehicle, Admin, db
 from sqlalchemy import or_
-from ..utils import to_dict
+from ..utils import to_dict, uploadImage, imagePath, getImageSize
 from werkzeug.security import generate_password_hash
 import re
 
@@ -14,6 +14,7 @@ def dashboard():
     if 'admin' in session:
         admin = Admin.query.get(session['admin']['id'])
         widget['new_driver'] = db.session.query(Vehicle).filter_by(status=False).count()
+        widget['old_driver'] = db.session.query(Vehicle).filter_by(status=True).count()
         widget['passengers'] = Passenger.query.count()
         return render_template('admin/dashboard.html', pageTitle=pageTitle, admin=admin, widget=widget)
     flash('Please login first!', ('warning'))
@@ -28,8 +29,9 @@ def passengers(status=None):
         passengers = Passenger.query.all()
         passengers = to_dict(passengers, Passenger)
         if status:
-            pageTitle = "Manage Acitve Passengers" if status == 1 else "Manage Inacitve Passengers"
+            pageTitle = "Manage Acitve Passengers" if status == "1" else "Manage Inacitve Passengers"
             passengers = Passenger.query.filter_by(status=status)
+            passengers = to_dict(passengers, Passenger)
         
         if request.method == "POST" and 'addPassenger' in request.form:
             firstname = request.form.get("firstname").strip()
@@ -128,6 +130,132 @@ def passengers(status=None):
             flash(msg[0], (msg[1]))
             return redirect(request.referrer)
         return render_template('admin/manage-passenger.html', pageTitle=pageTitle, admin=admin, passengers=passengers)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('auth.login')+'#admin')
+
+@admin_bp.route("/drivers", methods=['GET', 'POST'])
+@admin_bp.route("/drivers/<status>", methods=['GET', 'POST'])
+def drivers(status=None):
+    pageTitle = "Manage Driver"
+    if 'admin' in session:
+        admin = Admin.query.get(session['admin']['id'])
+        drivers = Vehicle.query.all()
+        drivers = to_dict(drivers, Vehicle)
+        if status:
+            pageTitle = "Manage Acitve Driver" if status == "1" else "Manage Unverified Driver"
+            drivers = Vehicle.query.filter_by(status=status)
+            drivers = to_dict(drivers, Vehicle)
+        
+        if request.method == "POST" and 'addDriver' in request.form:
+            name = request.form.get("name").strip()
+            email = request.form.get("email")
+            mobile = request.form.get("mobile").strip()
+            image = request.files.get("image")
+            garages = request.form.getlist('garages[]')
+            password = request.form['password']
+            password2 = request.form['password2']
+            vehicleNumber = request.form.get("vehicleNumber").strip()
+            vehicleType = request.form.get("vehicleType")
+            model = request.form.get("model")
+            capacity = request.form.get("capacity")
+            plateNumber = request.form.get("plateNumber")
+            # Check if account exists using MySQL
+            checkEmail = Vehicle.query.filter_by(email=email).first()
+            checkMobile = Vehicle.query.filter_by(mobile=mobile).first()
+            # Validation checks
+            msg = False
+            for key, val in request.form.items():
+                if (key not in ['email', 'addDriver'] and not val) or not image:
+                    msg = ['Please fill out the form!', 'error']
+            if checkEmail:
+                msg = ["This email has been taken, please try another one", 'error']
+            if not garages or len(garages) < 2:
+                msg = ["At least 2 garage name is required", 'error']
+            elif not re.match(r'[^@]+@[^@]+\.[^@]+', email) or len(email) > 30:
+                msg = ['Invalid email address!', 'error']
+            elif password != password2:
+                msg = ["Two Password not matched", 'error']
+            elif not int(mobile) or len(mobile) != 11:
+                msg = ['Invalid phone number!', 'error']
+            elif checkMobile:
+                msg = ['This phone number has been taken, please try another one', 'error']
+            elif not msg:
+                try:
+                    image = uploadImage(image, imagePath('driver'), getImageSize(image)) if image else None
+                    vehicle_info = dict(vehicleNumber=vehicleNumber, vehicleType=vehicleType, model=model, capacity=capacity, plateNumber=plateNumber, garages=garages)
+                    vehicle = Vehicle(name=name, email=email, mobile=mobile, image=image, vehicle_info=vehicle_info)
+                    vehicle.set_password(password)
+                    db.session.add(vehicle)
+                    db.session.commit()
+                    msg = ['New driver added successfully!', 'success']
+                    return redirect(url_for('auth.login'))
+                except Exception as e:
+                    db.session.rollback()
+                    print(e)
+                    msg = ['Something went wrong, Please try again!', 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        if request.method == "POST" and 'updateDriver' in request.form:
+            id = request.form['id']
+            name = request.form.get("name").strip()
+            email = request.form.get("email")
+            mobile = request.form.get("mobile").strip()
+            image = request.files.get("image")
+            garages = request.form.getlist('garages[]')
+            password = request.form['password']
+            password2 = request.form['password2']
+            vehicleNumber = request.form.get("vehicleNumber").strip()
+            vehicleType = request.form.get("vehicleType")
+            model = request.form.get("model")
+            capacity = request.form.get("capacity")
+            plateNumber = request.form.get("plateNumber")
+            uid = int(id)
+            checkEmail = db.session.query(Vehicle).filter(Vehicle.email==email, Vehicle.id != uid).first()
+            checkMobile = db.session.query(Vehicle).filter(Vehicle.mobile==mobile, Vehicle.id != uid).first()
+            # Validation checks
+            for key, val in request.form.items():
+                if (key not in ['email', 'addDriver'] and not val):
+                    msg = ['Please fill out the form!', 'error']
+            if checkEmail:
+                msg = ["This email has been taken, please try another one", 'error']
+            if not garages or len(garages) < 2:
+                msg = ["At least 2 garage name is required", 'error']
+            elif not re.match(r'[^@]+@[^@]+\.[^@]+', email) or len(email) > 30:
+                msg = ['Invalid email address!', 'error']
+            elif password != password2:
+                msg = ["Two Password not matched", 'error']
+            elif not int(mobile) or len(mobile) != 11:
+                msg = ['Invalid phone number!', 'error']
+            elif checkMobile:
+                msg = ['This phone number has been taken, please try another one', 'error']
+            else:
+                driver = Vehicle.query.get(int(uid))
+                if image:
+                    image = uploadImage(image, imagePath('driver'), getImageSize(image), driver.image)
+                    driver.image = image if image else driver.image
+                vehicle_info = dict(vehicleNumber=vehicleNumber, vehicleType=vehicleType, model=model, capacity=capacity, plateNumber=plateNumber, garages=garages)
+                driver.name = name; driver.email = email; driver.mobile = mobile; driver.vehicle_info=vehicle_info
+                try:
+                    db.session.commit()
+                    msg = ["Driver's record Updated successfully!", 'success']
+                except Exception as e:
+                    db.session.rollback()
+                    msg = ["Unable to update Driver's record, please try again later!", 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        if request.method == 'POST' and 'deleteDriver' in request.form:
+            # Create variables for easy access
+            id = request.form['id']
+            try:
+                db.session.query(Vehicle).filter(Vehicle.id == id).delete()
+                db.session.commit()
+                msg =  ["Driver's record deleted successfully!", 'success']
+            except:
+                db.session.rollback()
+                msg =  ["Unable to delete Driver's record, please try again later!", 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        return render_template('admin/manage-driver.html', pageTitle=pageTitle, admin=admin, drivers=drivers)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login')+'#admin')
 

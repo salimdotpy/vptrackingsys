@@ -19,11 +19,11 @@
         <div class="card-body d-flex align-items-center gap-3">
           <span class="fa-stack fs-4" style="margin-left: -5px">
             <i class="fa fa-circle fa-stack-2x text-primary"></i>
-            <i class="fa fa-user-plus fa-stack-1x fa-inverse"></i>
+            <i class="fa fa-taxi fa-stack-1x fa-inverse"></i>
           </span>
           <div class="flex-shrink-0">
-            <p class="card-text fw-bold mb-0">Add Passenger</p>
-            <small class="text-muted small">Add New Passenger</small>
+            <p class="card-text fw-bold mb-0">Add Driver</p>
+            <small class="text-muted small">Add New Driver</small>
           </div>
         </div>
       </div>
@@ -35,45 +35,43 @@
         <b>{{pageTitle}}</b>
         <hr />
         <div>
-          <table id="passengers" class="table table-bordered table-hover table-responsive w-100" style="height: 5px !important">
+          <table id="drivers" class="table table-bordered table-hover table-responsive w-100" style="height: 5px !important">
             <thead>
               <tr>
                 <th>S/N</th>
                 <th>Name</th>
                 <th>PhoneNumber</th>
                 <th>Email</th>
-                <th style="min-width: 150px;">NOK Info</th>
+                <th>vehicle Info</th>
                 <th>Date</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {% if passengers %} {% for passenger in passengers %}
+              {% if drivers %} {% for driver in drivers %}
               <tr>
                 <td>{{loop.index}}</td>
-                <td>{{passenger.name}}</td>
-                <td>{{ passenger.mobile }}</td>
-                <td>{{ passenger.email }}</td>
+                <td>{{driver.name}}</td>
+                <td>{{ driver.mobile }}</td>
+                <td>{{ driver.email }}</td>
                 <td class="small">
                   <small>
-                    <b>Name: </b>{{ passenger.nok_info.nokname }},
-                    <b>Phone number: </b> {{ passenger.nok_info.nokmobile }},
-                    <b>Relationship: </b> {{ passenger.nok_info.relationship }},
-                    <b>Address: </b> {{ passenger.nok_info.address }},
+                    <b>Number: </b>{{ driver.vehicle_info.vehicleNumber }},
+                    <b>Type: </b> {{ driver.vehicle_info.vehicleType }},
+                    <b>Model: </b> {{ driver.vehicle_info.model }},
+                    <b>Capacity: </b> {{ driver.vehicle_info.capacity }},
+                    <b>Plate Number: </b> {{ driver.vehicle_info.plateNumber }},
                   </small>
                 </td>
                 <td>
-                  {{passenger.updated_at.strftime("%a, %d %b %Y at %H:%M")}}
+                  {{driver.updated_at.strftime("%a, %d %b %Y at %H:%M")}}
                 </td>
                 <td class="text-right">
                   <div class="btn-group" style="width: 80px">
-                    <a class="btn btn-warning btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#deleteModal" data-action="print" data-obj='{{passenger|tojson}}'>
-                      <i class="fa fa-print"></i>
-                    </a>
-                    <a class="btn btn-primary btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#passengerCrud" data-action="update" data-obj='{{passenger|tojson}}' onclick="editPassenger(this)">
+                    <a class="btn btn-primary btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#passengerCrud" data-action="update" data-obj='{{driver|tojson}}' onclick="editDriver(this)">
                       <i class="fa fa-edit"></i>
                     </a>
-                    <a class="btn btn-danger btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#deleteModal"  data-id="{{passenger.id}}">
+                    <a class="btn btn-danger btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#deleteModal"  data-id="{{driver.id}}">
                       <i class="fa fa-trash"></i>
                     </a>
                   </div>
@@ -103,7 +101,7 @@
   <div class="modal-dialog modal-md" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitleId">Add New Passenger</h5>
+        <h5 class="modal-title" id="modalTitleId">Add New Driver</h5>
         <button
           type="button"
           class="btn-close"
@@ -136,8 +134,8 @@
   $(document).ready(function () {
     $('.app-name').text('{{pageTitle}}');
     $('.fa-power-off').hide();
-    $('#passengers').DataTable();
-    $('#passengers_wrapper').addClass('table-responsive');
+    $('#drivers').DataTable();
+    $('#drivers_wrapper').addClass('table-responsive');
   });
 
   $('#deleteModal').on('show.bs.modal', function (event) {
@@ -167,7 +165,7 @@
         <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
         <input type="hidden" name="id" value="${ele.data('id')}">
         <button class="btn btn-danger" type="button" data-bs-dismiss="modal">NO</button>
-        <button class="btn btn-primary" type="submit" name="deletePassenger">YES</button>
+        <button class="btn btn-primary" type="submit" name="deleteDriver">YES</button>
       </form>`);
     }
   });
@@ -176,10 +174,10 @@
         let ele = $(event.relatedTarget);
         let action = ele.data('action');
         if(action=="update"){
-            $(this).find('.modal-title').text("Update Passenger");
+            $(this).find('.modal-title').text("Update Driver");
             $(this).find('.modal-footer').html(''); $(this).find('.modal-footer').hide();
         }else{
-            $(this).find('.modal-title').text("Add New Passenger");
+            $(this).find('.modal-title').text("Add New Driver");
             $(this).find('#passengerData').html(
                 `<form method="post">
           <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
@@ -235,7 +233,7 @@
         </div>
       </div>
       <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
-        <button class="btn btn-primary order-1" name="addPassenger" type="submit">
+        <button class="btn btn-primary order-1" name="addDriver" type="submit">
           Submit
           </button>
           <button type="reset" class="btn btn-danger">Cancel</button>
@@ -245,7 +243,7 @@
     });
     
 
-  function editPassenger(e) {
+  function editDriver(e) {
     let data = $(e).data('obj');
     const name = data.name.split(' ');
     let content = `
@@ -307,7 +305,7 @@
         </div>
       </div>
       <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
-        <button class="btn btn-primary order-1" name="updatePassenger" type="submit">
+        <button class="btn btn-primary order-1" name="updateDriver" type="submit">
           Submit
         </button>
         <button type="reset" class="btn btn-danger">Cancel</button>
