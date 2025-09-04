@@ -115,6 +115,18 @@ def passengers(status=None):
                     msg = ["Unable to update Passenger's record, please try again later!", 'error']
             flash(msg[0], (msg[1]))
             return redirect(request.referrer)
+        if request.method == 'POST' and 'deletePassenger' in request.form:
+            # Create variables for easy access
+            id = request.form['id']
+            try:
+                db.session.query(Passenger).filter(Passenger.id == id).delete()
+                db.session.commit()
+                msg =  ["Passenger's record deleted successfully!", 'success']
+            except:
+                db.session.rollback()
+                msg =  ["Unable to delete Passenger's record, please try again later!", 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
         return render_template('admin/manage-passenger.html', pageTitle=pageTitle, admin=admin, passengers=passengers)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login')+'#admin')
