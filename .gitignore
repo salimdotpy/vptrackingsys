@@ -55,3 +55,4 @@ $RECYCLE.BIN/
 __pycache__/
 .env*
 app.py
+.prettierrc

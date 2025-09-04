@@ -200,7 +200,7 @@ ul.sub-menu > li > a {
   font-size: small;
 }
 
-nav {
+nav.navbar {
   position: fixed;
   width: calc(100% - 260px);
   background: var(--bg-color);
@@ -219,7 +219,7 @@ nav {
   transition: display 0.5s cubic-bezier(0.4, -0.25, 0.25, 1.1);
 }
 
-nav > .nav-btn > button {
+nav.navbar > .nav-btn > button {
   border: none;
   outline: none;
   background: none;
@@ -228,7 +228,7 @@ nav > .nav-btn > button {
   color: #565656;
 }
 
-nav > .app-name {
+nav.navbar > .app-name {
   margin: auto;
   font-size: 18px;
   width: 60%;
@@ -241,7 +241,7 @@ nav > .app-name {
   color: #565656;
 }
 
-nav > a {
+nav.navbar > a {
   font-size: 18px;
   padding: 0 20px;
   display: block;
@@ -280,7 +280,7 @@ main {
     background: rgba(0, 0, 0, 0.3);
   }
 
-  nav,
+  nav.navbar,
   main {
     margin-left: 0;
     width: 100%;
@@ -351,7 +351,7 @@ main {
     padding: 0;
   }
 
-  .open nav {
+  .open nav.navbar {
     width: calc(100% - 80px);
     margin-left: 80px;
   }

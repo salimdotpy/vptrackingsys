@@ -60,7 +60,6 @@ def register(who="passenger"):
                 msg = ['This phone number has been taken, please try another one', 'error']
             else:
                 try:
-                    # qrcode = f"VPTS-{uuid.uuid4()}"
                     name = f"{firstname[0]} {lastname}"
                     nok_info = dict(nokname=nokname, nokmobile=nokmobile, relationship=relationship, address=address)
                     passenger = Passenger(name=name, email=email, mobile=mobile, nok_info=nok_info)

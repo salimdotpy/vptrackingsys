@@ -15,13 +15,107 @@ def dashboard():
         admin = Admin.query.get(session['admin']['id'])
         widget['new_driver'] = db.session.query(Vehicle).filter_by(status=False).count()
         widget['passengers'] = Passenger.query.count()
-
-        # school = School.query.all()
-        # widget['school'] = [sch.to_dict(True) for sch in school if sch.parent_id == None]
-        # widget['representative'] = Representative.query.all()
-        # widget['campuses'] = [camp.to_dict(True) for camp in school if camp.parent_id or not camp.campuses]
-        # widget['buildings'] = Building.query.all()
         return render_template('admin/dashboard.html', pageTitle=pageTitle, admin=admin, widget=widget)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('auth.login')+'#admin')
+
+@admin_bp.route("/passengers", methods=['GET', 'POST'])
+@admin_bp.route("/passengers/<status>", methods=['GET', 'POST'])
+def passengers(status=None):
+    pageTitle = "Manage Passenger"
+    if 'admin' in session:
+        admin = Admin.query.get(session['admin']['id'])
+        passengers = Passenger.query.all()
+        passengers = to_dict(passengers, Passenger)
+        if status:
+            pageTitle = "Manage Acitve Passengers" if status == 1 else "Manage Inacitve Passengers"
+            passengers = Passenger.query.filter_by(status=status)
+        
+        if request.method == "POST" and 'addPassenger' in request.form:
+            firstname = request.form.get("firstname").strip()
+            lastname = request.form.get("lastname").strip()
+            mobile = request.form.get("mobile").strip()
+            email = request.form.get("email")
+            address = request.form.get("address").strip()
+            nokname = request.form.get("nokname").strip()
+            nokmobile = request.form.get("nokmobile").strip()
+            relationship = request.form.get("relationship")
+            # Check if account exists using MySQL
+            checkEmail = Passenger.query.filter_by(email=email).first()
+            checkMobile = Passenger.query.filter_by(mobile=mobile).first()
+            # Validation checks
+            for key, val in request.form.items():
+                if key not in ['email', 'addPassenger'] and not val:
+                    msg = ['Please fill out the form!', 'error']
+            firstname = firstname.split()
+            if len(firstname) > 1:
+                msg = ['First name must not contain space', 'error']
+            if checkEmail:
+                msg = ["This email has been taken, please try another one", 'error']
+            elif not re.match(r'[^@]+@[^@]+\.[^@]+', email) or len(email) > 30:
+                msg = ['Invalid email address!', 'error']
+            elif not int(mobile) or len(mobile) != 11:
+                msg = ['Invalid phone number!', 'error']
+            elif checkMobile:
+                msg = ['This phone number has been taken, please try another one', 'error']
+            else:
+                try:
+                    name = f"{firstname[0]} {lastname}"
+                    nok_info = dict(nokname=nokname, nokmobile=nokmobile, relationship=relationship, address=address)
+                    passenger = Passenger(name=name, email=email, mobile=mobile, nok_info=nok_info)
+                    db.session.add(passenger)
+                    db.session.commit()
+                    passenger = passenger.query.get(passenger.id); passenger = to_dict(passenger, Passenger)
+                    msg = ['New passenger added successfully!', 'success']
+                except Exception as e:
+                    db.session.rollback()
+                    print(e); passenger = False
+                    msg = ['Something went wrong, Please try again!', 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        if request.method == "POST" and 'updatePassenger' in request.form:
+            id = request.form['id']
+            firstname = request.form.get("firstname").strip()
+            lastname = request.form.get("lastname").strip()
+            mobile = request.form.get("mobile").strip()
+            email = request.form.get("email")
+            address = request.form.get("address").strip()
+            nokname = request.form.get("nokname").strip()
+            nokmobile = request.form.get("nokmobile").strip()
+            relationship = request.form.get("relationship")
+            # Check if account exists using MySQL
+            uid = int(id)
+            checkEmail = db.session.query(Passenger).filter(Passenger.email==email, Passenger.id != uid).first()
+            checkMobile = db.session.query(Passenger).filter(Passenger.mobile==mobile, Passenger.id != uid).first()
+            # Validation checks
+            for key, val in request.form.items():
+                if key not in ['email', 'updatePassenger'] and not val:
+                    msg = ['Please fill out the form!', 'error']
+            firstname = firstname.split()
+            if len(firstname) > 1:
+                msg = ['First name must not contain space', 'error']
+            if checkEmail:
+                msg = ["This email has been taken, please try another one", 'error']
+            elif not re.match(r'[^@]+@[^@]+\.[^@]+', email) or len(email) > 30:
+                msg = ['Invalid email address!', 'error']
+            elif not int(mobile) or len(mobile) != 11:
+                msg = ['Invalid phone number!', 'error']
+            elif checkMobile:
+                msg = ['This phone number has been taken, please try another one', 'error']
+            else:
+                passenger = Passenger.query.get(int(uid))
+                name = f"{firstname[0]} {lastname}"
+                nok_info = dict(nokname=nokname, nokmobile=nokmobile, relationship=relationship, address=address)
+                passenger.name = name; passenger.email = email; passenger.mobile = mobile; passenger.nok_info=nok_info
+                try:
+                    db.session.commit()
+                    msg = ["Passenger's record Updated successfully!", 'success']
+                except Exception as e:
+                    db.session.rollback()
+                    msg = ["Unable to update Passenger's record, please try again later!", 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        return render_template('admin/manage-passenger.html', pageTitle=pageTitle, admin=admin, passengers=passengers)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login')+'#admin')
 

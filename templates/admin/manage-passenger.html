@@ -1,0 +1,319 @@
+{% extends 'layout.html' %} {% block style_lib %}
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
+{% endblock %} {% block content %}
+<nav class="breadcrumb">
+  <a class="breadcrumb-item" href="{{ url_for('admin.dashboard') }}"
+    >Dashboard</a
+  >
+  <span class="breadcrumb-item active" aria-current="page">{{pageTitle}}</span>
+</nav>
+<div class="row g-3">
+  <div class="col-md-6 col-lg-4 col-xl-3">
+    <a
+      href="javascript:void(0)"
+      data-bs-toggle="modal"
+      data-bs-target="#passengerCrud"
+    >
+      <div class="card rounded-4 shadow">
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="fa-stack fs-4" style="margin-left: -5px">
+            <i class="fa fa-circle fa-stack-2x text-primary"></i>
+            <i class="fa fa-user-plus fa-stack-1x fa-inverse"></i>
+          </span>
+          <div class="flex-shrink-0">
+            <p class="card-text fw-bold mb-0">Add Passenger</p>
+            <small class="text-muted small">Add New Passenger</small>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-12">
+    <div class="card rounded-4 shadow">
+      <div class="card-body">
+        <b>{{pageTitle}}</b>
+        <hr />
+        <div>
+          <table id="passengers" class="table table-bordered table-hover table-responsive w-100" style="height: 5px !important">
+            <thead>
+              <tr>
+                <th>S/N</th>
+                <th>Name</th>
+                <th>PhoneNumber</th>
+                <th>Email</th>
+                <th>NOK Info</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if passengers %} {% for passenger in passengers %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td>{{passenger.name}}</td>
+                <td>{{ passenger.mobile }}</td>
+                <td>{{ passenger.email }}</td>
+                <td class="small">
+                  <small>
+                    <b>Name: </b>{{ passenger.nok_info.nokname }},
+                    <b>Phone number: </b> {{ passenger.nok_info.nokmobile }},
+                    <b>Relationship: </b> {{ passenger.nok_info.relationship }},
+                    <b>Address: </b> {{ passenger.nok_info.address }},
+                  </small>
+                </td>
+                <td>
+                  {{passenger.updated_at.strftime("%a, %d %b %Y at %H:%M")}}
+                </td>
+                <td class="text-right">
+                  <div class="btn-group" style="width: 80px">
+                    <a class="btn btn-warning btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#deleteModal" data-action="print" data-obj='{{passenger|tojson}}'>
+                      <i class="fa fa-print"></i>
+                    </a>
+                    <a class="btn btn-primary btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#passengerCrud" data-action="update" data-obj='{{passenger|tojson}}' onclick="editPassenger(this)">
+                      <i class="fa fa-edit"></i>
+                    </a>
+                    <a class="btn btn-danger btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#deleteModal"  data-id="{{passenger.id}}">
+                      <i class="fa fa-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {%else%}
+              <tr>
+                No record found
+              </tr>
+              {% endfor %} {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<div
+  class="modal fade"
+  id="passengerCrud"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitleId">Add New Passenger</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="passengerData"></div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modalTitleId">Confirmation</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function () {
+    $('.app-name').text('{{pageTitle}}');
+    $('.fa-power-off').hide();
+    $('#passengers').DataTable();
+    $('#passengers_wrapper').addClass('table-responsive');
+  });
+
+  $('#deleteModal').on('show.bs.modal', function (event) {
+    let ele = $(event.relatedTarget);
+    let action = ele.data('action');
+    $(this).attr('style', '');
+    $(this).find('.modal-dialog').attr('style', '');
+    $(this).find('.modal-footer').show();
+    if(action=="print"){
+      let data = ele.data('obj');
+      $(this).find('.modal-title').text(`${data.name}'s QR-Code`);
+      $(this).find('.modal-footer').hide();
+      $(this).find('.modal-body').html(`
+      <div class="d-flex flex-column align-items-center justify-content-center gap-3">
+        <div id="aqrcode" class="p-4 border border-primary bg-white"></div>
+        <button type="button" class="btn btn-primary" onclick="downloadQRcode('aqrcode', 'qrcode_${data.mobile}.png')">
+          <i class="fa fa-download"></i>
+          Download
+          </button>
+          </div>`);
+      generateQRCode('aqrcode', `${data.qrcode}|&|${data.id}`);
+    } else {
+      $(this).find('.modal-title').text('Confirmation');
+      $(this).find('.modal-body').html('Are you sure you want to delete?');
+      $(this).find('.modal-footer').html(`
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+        <input type="hidden" name="id" value="${ele.data('id')}">
+        <button class="btn btn-danger" type="button" data-bs-dismiss="modal">NO</button>
+        <button class="btn btn-primary" type="submit" name="deletePassenger">YES</button>
+      </form>`);
+    }
+  });
+
+  $("#passengerCrud").on('show.bs.modal', function(event){
+        let ele = $(event.relatedTarget);
+        let action = ele.data('action');
+        if(action=="update"){
+            $(this).find('.modal-title').text("Update Passenger");
+            $(this).find('.modal-footer').html(''); $(this).find('.modal-footer').hide();
+        }else{
+            $(this).find('.modal-title').text("Add New Passenger");
+            $(this).find('#passengerData').html(
+                `<form method="post">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="firstname" class="form-label">First Name:</label>
+              <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" pattern="^[A-Za-z]+$" title="First name must not contain spaces or special characters" required />
+            </div>
+            <div class="col-md-6">
+              <label for="lastname" class="form-label">Last Name:</label>
+              <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Enter last name" required />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="mobile" class="form-label">Phone Number:</label>
+              <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter phone number" required />
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email Address:</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Residential Address:</label>
+            <textarea class="form-control" id="address" name="address" placeholder="Enter residential address" required></textarea>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header fw-bold">Next of Kin (nok) Information</div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="nokname" class="form-label">Fullname:</label>
+                <input type="text" id="nokname" name="nokname" class="form-control" placeholder="Enter nok fullname" required />
+              </div>
+              <div class="mb-3 row">
+                <div class="col-md-6">
+                  <label for="nokmobile" class="form-label">Phone Number:</label>
+                  <input type="tel" class="form-control" id="nokmobile" name="nokmobile" placeholder="Enter nok phone number" required />
+                </div>
+                <div class="col-md-6">
+                  <label for="relationship" class="form-label">Relationship:</label>
+                  <select name="relationship" class="form-control" required>
+                  <option value="">Select Relationship</option>    
+                <option value="father">Father</option>
+                <option value="mother">Mother</option>
+                <option value="child">Child</option>
+                <option value="brother">Brother</option>
+                <option value="sister">Sister</option>
+                <option value="other">Other</option>  
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
+        <button class="btn btn-primary order-1" name="addPassenger" type="submit">
+          Submit
+          </button>
+          <button type="reset" class="btn btn-danger">Cancel</button>
+      </div>
+    </form>`);
+        }
+    });
+    
+
+  function editPassenger(e) {
+    let data = $(e).data('obj');
+    const name = data.name.split(' ');
+    let content = `
+    <form method="post">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+          <input type="hidden" name="id" value="${data.id}" />
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="firstname" class="form-label">First Name:</label>
+              <input type="text" id="firstname" name="firstname" value="${name[0]}" class="form-control" placeholder="Enter first name" pattern="^[A-Za-z]+$" title="First name must not contain spaces or special characters" required />
+            </div>
+            <div class="col-md-6">
+              <label for="lastname" class="form-label">Last Name:</label>
+              <input type="text" id="lastname" name="lastname" value="${name[1]}" class="form-control" placeholder="Enter last name" required />
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="mobile" class="form-label">Phone Number:</label>
+              <input type="tel" class="form-control" id="mobile" name="mobile" value="${data.mobile}" placeholder="Enter phone number" required />
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email Address:</label>
+              <input type="email" class="form-control" id="email" name="email" value="${data.email}" placeholder="Enter email address" />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Residential Address:</label>
+            <textarea class="form-control" id="address" name="address" placeholder="Enter residential address" required>${data.nok_info.address}</textarea>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header fw-bold">Next of Kin (nok) Information</div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="nokname" class="form-label">Fullname:</label>
+                <input type="text" id="nokname" name="nokname" value="${data.nok_info.nokname}"class="form-control" placeholder="Enter nok fullname" required />
+              </div>
+              <div class="mb-3 row">
+                <div class="col-md-6">
+                  <label for="nokmobile" class="form-label">Phone Number:</label>
+                  <input type="tel" class="form-control" id="nokmobile" name="nokmobile"  value="${data.nok_info.nokmobile}"  placeholder="Enter nok phone number" required />
+                </div>
+                <div class="col-md-6">
+                  <label for="relationship" class="form-label">Relationship:</label>
+                  <select name="relationship" class="form-control" required>
+                    <option value="">Select Relationship</option>
+                    <option value="${data.nok_info.relationship}" selected>${data.nok_info.relationship}</option>`;
+
+    const options = ["father", "mother", "child", "brother", "sister", "other"];
+    for (const opt of options) {
+      if (opt != data.nok_info.relationship) {
+        content += `<option value="${opt}">${opt[0].toUpperCase()}${opt.slice(1)}</option>`
+      }
+    }
+    content +=  `
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
+        <button class="btn btn-primary order-1" name="updatePassenger" type="submit">
+          Submit
+        </button>
+        <button type="reset" class="btn btn-danger">Cancel</button>
+      </div>
+    </form>`;
+    $('#passengerData').html(content);
+  }
+</script>
+{% endblock %}

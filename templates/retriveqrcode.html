@@ -21,8 +21,8 @@
             <i class="fa fa-download"></i>
             Download
           </button>
-          {% endif %}
         </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -30,15 +30,15 @@
 {% endblock %} {% block script %}
 <script>
   $(document).ready(function () {
-    $(".app-name").text("{{ pageTitle }}").addClass("align-self-center");
-    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
-    $("#s_logo").hide();
+    $('.app-name').text('{{ pageTitle }}').addClass('align-self-center');
+    $('.s_icon').html("<a href='/'><i class='fa fa-arrow-left' " + '></i></a>');
+    $('#s_logo').hide();
   });
 </script>
 {% if passenger %}
 <script>
   $(document).ready(function () {
-    generateQRCode("qrcode", "{{passenger.qrcode}}|&|{{passenger.id}}");
+    generateQRCode('qrcode', '{{passenger.qrcode}}|&|{{passenger.id}}');
   });
 </script>
 {% endif %} {% endblock %}
