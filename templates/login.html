@@ -173,71 +173,64 @@
           aria-label="Close"
         ></button>
       </div>
-      <form method="post" action="{{ url_for('main.qrcode' ) }}">
-        <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
-        <div class="modal-body">
-          <div id="forgot_error" class="text-danger"></div>
-          <form role="form" id="forgotP">
-            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
-            <div class="mb-3">
-              <label class="control-label">Email Address</label>
-              <input
-                type="email"
-                class="form-control"
-                placeholder="Enter Email Address"
-                name="email"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <label class="control-label">Phone Number</label>
-              <input
-                type="tel"
-                class="form-control"
-                placeholder="Enter Phone Number"
-                name="mobile"
-                required
-              />
-            </div>
-          </form>
-          <form role="form" class="" id="resetP">
-            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
-            <div class="mb-3">
-              <label class="control-label">Create new Password</label>
-              <input
-                type="password"
-                class="form-control"
-                placeholder="Create new Password"
-                name="npass"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <label class="control-label">Confirm Password</label>
-              <input
-                type="password"
-                class="form-control"
-                placeholder="Confirm Password"
-                name="cpass"
-                required
-              />
-              <input type="hidden" name="mobile" id="contact" />
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
-          <button type="submit" class="btn btn-primary" onclick="forgotRest()">
-            Submit
-          </button>
-        </div>
-      </form>
+      <div class="modal-body">
+        <div id="forgot_error" class="text-danger"></div>
+        <form role="form" id="forgotP">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+          <div class="mb-3">
+            <label class="control-label">Email Address</label>
+            <input
+              type="email"
+              class="form-control"
+              placeholder="Enter Email Address"
+              name="email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="control-label">Phone Number</label>
+            <input
+              type="tel"
+              class="form-control"
+              placeholder="Enter Phone Number"
+              name="mobile"
+              required
+            />
+          </div>
+        </form>
+        <form role="form" class="" id="resetP">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+          <div class="mb-3">
+            <label class="control-label">Create new Password</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Create new Password"
+              name="npass"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="control-label">Confirm Password</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Confirm Password"
+              name="cpass"
+              required
+            />
+            <input type="hidden" name="mobile" id="contact" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-primary" onclick="forgotRest()">
+          Submit
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -245,44 +238,44 @@
   $(document).ready(function () {
     let hash = window.location.hash;
     if (hash) $('ul.nav button[data-bs-target="' + hash + '"]').click();
-    $(".app-name").text("{{ pageTitle }}").addClass("align-self-center");
-    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
-    $("#s_logo").hide();
+    $('.app-name').text('{{ pageTitle }}').addClass('align-self-center');
+    $('.s_icon').html("<a href='/'><i class='fa fa-arrow-left' " + '></i></a>');
+    $('#s_logo').hide();
   });
-  let _seePass = $(".seePass"),
-    _pass = $(".pass");
-  _seePass.on("click", function () {
-    $(this).toggleClass("fa-eye-slash").toggleClass("fa-eye");
-    if ($(this).hasClass("fa-eye-slash")) _pass.attr("type", "text");
-    else _pass.attr("type", "password");
+  let _seePass = $('.seePass'),
+    _pass = $('.pass');
+  _seePass.on('click', function () {
+    $(this).toggleClass('fa-eye-slash').toggleClass('fa-eye');
+    if ($(this).hasClass('fa-eye-slash')) _pass.attr('type', 'text');
+    else _pass.attr('type', 'password');
   });
-  $("#resetP").hide();
+  $('#resetP').hide();
   let check = true;
-  $("#forgotPasswordModal").on("hidden.bs.modal", function () {
+  $('#forgotPasswordModal').on('hidden.bs.modal', function () {
     window.location.reload();
   });
   function forgotRest() {
-    $("#forgot_error").html("");
+    $('#forgot_error').html('');
     if (check) {
       $.ajax({
-        url: "/forgetRestPass",
-        method: "post",
-        data: $("#forgotP").serialize() + "&ajax=1&forgotP=1",
-        dataType: "json",
+        url: '/forget-password',
+        method: 'post',
+        data: $('#forgotP').serialize() + '&ajax=1&forgotP=1',
+        dataType: 'json',
         success: function (res) {
           if (res[1]) {
             check = false;
-            $("#forgotP").hide();
-            $("#forgot_error").html("");
-            $("#resetP").show();
-            $("#contact").val(res[0]);
+            $('#forgotP').hide();
+            $('#forgot_error').html('');
+            $('#resetP').show();
+            $('#contact').val(res[0]);
           } else {
             check = true;
-            toast_it({ text: res[0], icon: "error" });
-            $("#forgot_error").html(res[0]);
-            $("#forgotP").show();
-            $("#forgotP")[0].reset();
-            $("#resetP").hide();
+            toast_it({ text: res[0], icon: 'error' });
+            $('#forgot_error').html(res[0]);
+            $('#forgotP').show();
+            $('#forgotP')[0].reset();
+            $('#resetP').hide();
           }
         },
         error: function (e) {
@@ -291,20 +284,20 @@
       });
     } else {
       $.ajax({
-        url: "/forgetRestPass",
-        method: "post",
-        data: $("#resetP").serialize() + "&ajax=1&resetP=1",
-        dataType: "json",
+        url: '/forget-password',
+        method: 'post',
+        data: $('#resetP').serialize() + '&ajax=1&resetP=1',
+        dataType: 'json',
         success: function (res) {
-          if (res[1] == "success") {
-            toast_it({ text: res[0], icon: "success", timer: 1900 });
+          if (res[1] == 'success') {
+            toast_it({ text: res[0], icon: 'success', timer: 1900 });
             setTimeout(function () {
               window.location.reload();
             }, 2000);
           } else {
-            $("#forgot_error").html(res[0]);
-            toast_it({ text: res[0], icon: "error" });
-            $("#resetP")[0].reset();
+            $('#forgot_error').html(res[0]);
+            toast_it({ text: res[0], icon: 'error' });
+            $('#resetP')[0].reset();
           }
         },
         error: function (e) {

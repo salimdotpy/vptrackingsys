@@ -58,13 +58,6 @@ class Vehicle(db.Model, TimestampMixin):
     password = db.Column(db.String(255), nullable=False)
     status = db.Column(db.Boolean, default=False)
     
-    # Relationships
-    # role = db.relationship('Role', backref='users')
-    # customer = db.relationship('Customer', uselist=False, back_populates='user')
-    # store = db.relationship('Store', uselist=False, back_populates='user')
-    # employee = db.relationship('Employee', uselist=False, back_populates='user')
-    # deliveryman = db.relationship('Deliveryman', uselist=False, back_populates='user')
-    
     def set_password(self, password):
         self.password = generate_password_hash(password)
         

@@ -188,7 +188,6 @@ def drivers(status=None):
                     db.session.add(vehicle)
                     db.session.commit()
                     msg = ['New driver added successfully!', 'success']
-                    return redirect(url_for('auth.login'))
                 except Exception as e:
                     db.session.rollback()
                     print(e)
@@ -202,8 +201,6 @@ def drivers(status=None):
             mobile = request.form.get("mobile").strip()
             image = request.files.get("image")
             garages = request.form.getlist('garages[]')
-            password = request.form['password']
-            password2 = request.form['password2']
             vehicleNumber = request.form.get("vehicleNumber").strip()
             vehicleType = request.form.get("vehicleType")
             model = request.form.get("model")
@@ -222,8 +219,6 @@ def drivers(status=None):
                 msg = ["At least 2 garage name is required", 'error']
             elif not re.match(r'[^@]+@[^@]+\.[^@]+', email) or len(email) > 30:
                 msg = ['Invalid email address!', 'error']
-            elif password != password2:
-                msg = ["Two Password not matched", 'error']
             elif not int(mobile) or len(mobile) != 11:
                 msg = ['Invalid phone number!', 'error']
             elif checkMobile:

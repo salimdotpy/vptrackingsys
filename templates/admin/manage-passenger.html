@@ -1,4 +1,4 @@
-{% extends 'layout.html' %} {% block style_lib %}
+{% extends 'admin/layout.html' %} {% block style_lib %}
 <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
 {% endblock %} {% block content %}
@@ -116,7 +116,7 @@
   </div>
 </div>
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog" style="margin-top: 15%" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold" id="modalTitleId">Confirmation</h5>
@@ -144,7 +144,7 @@
     let ele = $(event.relatedTarget);
     let action = ele.data('action');
     $(this).attr('style', '');
-    $(this).find('.modal-dialog').attr('style', '');
+    // $(this).find('.modal-dialog').attr('style', '');
     $(this).find('.modal-footer').show();
     if(action=="print"){
       let data = ele.data('obj');

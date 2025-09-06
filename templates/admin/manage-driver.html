@@ -1,4 +1,4 @@
-{% extends 'layout.html' %} {% block style_lib %}
+{% extends 'admin/layout.html' %} {% block style_lib %}
 <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
 {% endblock %} {% block content %}
@@ -13,7 +13,7 @@
     <a
       href="javascript:void(0)"
       data-bs-toggle="modal"
-      data-bs-target="#passengerCrud"
+      data-bs-target="#driverCrud"
     >
       <div class="card rounded-4 shadow">
         <div class="card-body d-flex align-items-center gap-3">
@@ -32,7 +32,27 @@
   <div class="col-md-12">
     <div class="card rounded-4 shadow">
       <div class="card-body">
-        <b>{{pageTitle}}</b>
+        <div class="d-flex align-items-center justify-content-between">
+          <b>{{pageTitle}}</b>
+          <div class="dropdown open">
+            <a
+              class="btn btn-outline-primary dropdown-toggle"
+              type="button"
+              id="triggerId"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Filter
+            </a>
+            <div class="dropdown-menu" aria-labelledby="triggerId">
+              <a class="dropdown-item" href="{{ url_for('admin.drivers') }}">All</a>
+              <a class="dropdown-item" href="{{ url_for('admin.drivers', status=1) }}">Verified</a>
+              <a class="dropdown-item" href="{{ url_for('admin.drivers', status=0) }}">Unverified</a>
+            </div>
+          </div>
+          
+        </div>
         <hr />
         <div>
           <table id="drivers" class="table table-bordered table-hover table-responsive w-100" style="height: 5px !important">
@@ -42,7 +62,8 @@
                 <th>Name</th>
                 <th>PhoneNumber</th>
                 <th>Email</th>
-                <th>vehicle Info</th>
+                <th style="min-width: 110px;">Vehicle Info</th>
+                <th>Status</th>
                 <th>Date</th>
                 <th>Action</th>
               </tr>
@@ -64,11 +85,21 @@
                   </small>
                 </td>
                 <td>
+                  <div class="toggle-con" data-bs-toggle="modal" data-bs-target="#deleteModal" data-action="verify" data-id="{{driver.id}}" style="width: 110px;">
+                        <input type="checkbox" name="mcampus" id="toggler" {% if not driver.status %}checked{% endif %}  hidden>
+                        <div class="toggle-wrap {% if not driver.status %}toggle-transform{% endif %}" id="status-{{driver.id}}">
+                            <label for="toggler" class="toggle-lbl bg-success text-white">Verified</label>
+                            <div class="divider"></div>
+                            <label for="toggler" class="toggle-lbl bg-danger text-white">Unverified</label>
+                        </div>
+                    </div>
+                </td>
+                <td>
                   {{driver.updated_at.strftime("%a, %d %b %Y at %H:%M")}}
                 </td>
                 <td class="text-right">
                   <div class="btn-group" style="width: 80px">
-                    <a class="btn btn-primary btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#passengerCrud" data-action="update" data-obj='{{driver|tojson}}' onclick="editDriver(this)">
+                    <a class="btn btn-primary btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#driverCrud" data-action="update" data-obj='{{driver|tojson}}' onclick="editDriver(this)">
                       <i class="fa fa-edit"></i>
                     </a>
                     <a class="btn btn-danger btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#deleteModal"  data-id="{{driver.id}}">
@@ -92,7 +123,7 @@
 {% endblock %} {% block script %}
 <div
   class="modal fade"
-  id="passengerCrud"
+  id="driverCrud"
   tabindex="-1"
   role="dialog"
   aria-labelledby="modalTitleId"
@@ -109,12 +140,12 @@
           aria-label="Close"
         ></button>
       </div>
-      <div class="modal-body" id="passengerData"></div>
+      <div class="modal-body" id="driverData"></div>
     </div>
   </div>
 </div>
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog" style="margin-top: 15%" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold" id="modalTitleId">Confirmation</h5>
@@ -142,21 +173,19 @@
     let ele = $(event.relatedTarget);
     let action = ele.data('action');
     $(this).attr('style', '');
-    $(this).find('.modal-dialog').attr('style', '');
+    // $(this).find('.modal-dialog').attr('style', '');
     $(this).find('.modal-footer').show();
-    if(action=="print"){
-      let data = ele.data('obj');
-      $(this).find('.modal-title').text(`${data.name}'s QR-Code`);
-      $(this).find('.modal-footer').hide();
-      $(this).find('.modal-body').html(`
-      <div class="d-flex flex-column align-items-center justify-content-center gap-3">
-        <div id="aqrcode" class="p-4 border border-primary bg-white"></div>
-        <button type="button" class="btn btn-primary" onclick="downloadQRcode('aqrcode', 'qrcode_${data.mobile}.png')">
-          <i class="fa fa-download"></i>
-          Download
-          </button>
-          </div>`);
-      generateQRCode('aqrcode', `${data.qrcode}|&|${data.id}`);
+    if (action == "verify") {
+      const toggleElement = ele.find('.toggle-wrap');
+      const status = toggleElement.hasClass('toggle-transform') ? 1 : 0;
+      $(this).find('.modal-title').text('Confirmation');
+      $(this).find('.modal-body').html('Are you sure to change the status?');
+      $(this).find('.modal-footer').html(`
+        <input type="hidden" id="status" value="${ele.data('id')}">
+        <button class="btn btn-danger" type="button" data-bs-dismiss="modal">NO</button>
+        <a href="/api/updata-status/Vehicle/${ele.data('id')}/status/${status}" class="btn btn-primary">YES</a>
+      `);
+      toggleElement.toggleClass('toggle-transform');
     } else {
       $(this).find('.modal-title').text('Confirmation');
       $(this).find('.modal-body').html('Are you sure you want to delete?');
@@ -169,8 +198,15 @@
       </form>`);
     }
   });
+  $("#deleteModal").on("hidden.bs.modal", function (event) {
+    // window.location.reload();
+    let ele = $(event.currentTarget);
+    ele = ele.find('#status').val();
+    let toggleElement = $(`#status-${ele}`);
+    toggleElement.toggleClass('toggle-transform');
+  });
 
-  $("#passengerCrud").on('show.bs.modal', function(event){
+  $("#driverCrud").on('show.bs.modal', function(event){
         let ele = $(event.relatedTarget);
         let action = ele.data('action');
         if(action=="update"){
@@ -178,132 +214,213 @@
             $(this).find('.modal-footer').html(''); $(this).find('.modal-footer').hide();
         }else{
             $(this).find('.modal-title').text("Add New Driver");
-            $(this).find('#passengerData').html(
-                `<form method="post">
+            $(this).find('#driverData').html(
+                `<form method="post" enctype="multipart/form-data">
           <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
-          <div class="mb-3 row">
+          <div class="mb-3 row g-3">
             <div class="col-md-6">
-              <label for="firstname" class="form-label">First Name:</label>
-              <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" pattern="^[A-Za-z]+$" title="First name must not contain spaces or special characters" required />
+              <label for="vehicleNumber" class="form-label">Vehicle Number</label>
+              <input type="text" class="form-control" id="vehicleNumber" name="vehicleNumber" placeholder="e.g. ABC-1234" required />
             </div>
             <div class="col-md-6">
-              <label for="lastname" class="form-label">Last Name:</label>
-              <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Enter last name" required />
-            </div>
-          </div>
-          <div class="mb-3 row">
-            <div class="col-md-6">
-              <label for="mobile" class="form-label">Phone Number:</label>
-              <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter phone number" required />
-            </div>
-            <div class="col-md-6">
-              <label for="email" class="form-label">Email Address:</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" />
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="address" class="form-label">Residential Address:</label>
-            <textarea class="form-control" id="address" name="address" placeholder="Enter residential address" required></textarea>
-          </div>
-          <div class="card mb-3">
-            <div class="card-header fw-bold">Next of Kin (nok) Information</div>
-            <div class="card-body">
-              <div class="mb-3">
-                <label for="nokname" class="form-label">Fullname:</label>
-                <input type="text" id="nokname" name="nokname" class="form-control" placeholder="Enter nok fullname" required />
-              </div>
-              <div class="mb-3 row">
-                <div class="col-md-6">
-                  <label for="nokmobile" class="form-label">Phone Number:</label>
-                  <input type="tel" class="form-control" id="nokmobile" name="nokmobile" placeholder="Enter nok phone number" required />
-                </div>
-                <div class="col-md-6">
-                  <label for="relationship" class="form-label">Relationship:</label>
-                  <select name="relationship" class="form-control" required>
-                  <option value="">Select Relationship</option>    
-                <option value="father">Father</option>
-                <option value="mother">Mother</option>
-                <option value="child">Child</option>
-                <option value="brother">Brother</option>
-                <option value="sister">Sister</option>
-                <option value="other">Other</option>  
+              <label for="vehicleType" class="form-label">Vehicle Type</label>
+              <select class="form-select" id="vehicleType" name="vehicleType" required>
+                <option value="">-- Select Vehicle Type --</option>
+                <option value="bus">Bus</option>
+                <option value="car">Car</option>
+                <option value="van">Van</option>
+                <option value="truck">Truck</option>
+                <option value="other">Other</option>
               </select>
             </div>
+            <div class="col-md-6">
+              <label for="model" class="form-label">Model</label>
+              <input type="text" class="form-control" id="model" name="model" placeholder="e.g. Toyota Hiace" required />
+            </div>
+            <div class="col-md-6">
+              <label for="capacity" class="form-label">Seating Capacity</label>
+              <input type="number" class="form-control" id="capacity" name="capacity" min="1" required />
+            </div>
+            <div class="col-md-12">
+              <label for="plateNumber" class="form-label">Plate Number:</label>
+              <input type="text" class="form-control" id="plateNumber" name="plateNumber" placeholder="e.g. OSUN-1234" required />
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
-        <button class="btn btn-primary order-1" name="addDriver" type="submit">
-          Submit
-          </button>
-          <button type="reset" class="btn btn-danger">Cancel</button>
-      </div>
-    </form>`);
+          <div class="card mb-3">
+            <div class="card-header fw-bold">Garage Information</div>
+            <div class="card-body">
+              <p class="form-text text-muted">At least 2 Garage is required</p>
+              <div class="row g-3" id="garage">
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter garage name" name="garages[]" />
+                    <button class="btn btn-danger" type="button" title="Remove garage" onclick="removeGarage(this)" disabled>
+                      <i class="fa fa-times-circle"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter garage name" name="garages[]" />
+                    <button class="btn btn-danger" type="button" title="Remove garage" onclick="removeGarage(this)" disabled>
+                      <i class="fa fa-times-circle"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-12 d-flex justify-content-end">
+                  <button type="button" class="btn btn-outline-primary" onclick="addGarage(this)">
+                    add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header fw-bold">
+              Owner's / Driver's Information
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Fullname:</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter fullname" required />
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email Address:</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" />
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="uploader" class="form-label">Upload Image</label>
+                  <label for="uploader" style="cursor: pointer" class="position-relative d-block">
+                    <img src="{{ url_for('static', filename='images/noimage.png') }}" class="img-fluid rounded preview-img border w-100 border-1 border-primary p-1" alt="" title="Upload Image" style="height: 125px" />
+                    <input type="file" name="image" id="uploader" accept="image/*" class="d-none" onchange="imgs(this, '.preview-img')" />
+                    <span class="position-absolute top-50 start-50 translate-middle badge bg-info">Click here</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="dmobile" class="form-label">Phone Number:</label>
+                <input type="tel" class="form-control" id="dmobile" name="mobile" placeholder="Enter phone number" required />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Create Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required />
+              </div>
+              <div class="mb-3">
+                <label for="cpass" class="form-label">Confirm Password:</label>
+                <input type="password" class="form-control" id="cpass" name="password2" placeholder="Retype Password" required />
+              </div>
+            </div>
+          </div>
+          <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
+            <button class="btn btn-primary order-1" name="addDriver" type="submit">
+              Submit
+              </button>
+              <button type="reset" class="btn btn-danger">Cancel</button>
+          </div>
+        </form>`);
         }
     });
     
-
   function editDriver(e) {
     let data = $(e).data('obj');
-    const name = data.name.split(' ');
     let content = `
-    <form method="post">
-          <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
-          <input type="hidden" name="id" value="${data.id}" />
-          <div class="mb-3 row">
-            <div class="col-md-6">
-              <label for="firstname" class="form-label">First Name:</label>
-              <input type="text" id="firstname" name="firstname" value="${name[0]}" class="form-control" placeholder="Enter first name" pattern="^[A-Za-z]+$" title="First name must not contain spaces or special characters" required />
-            </div>
-            <div class="col-md-6">
-              <label for="lastname" class="form-label">Last Name:</label>
-              <input type="text" id="lastname" name="lastname" value="${name[1]}" class="form-control" placeholder="Enter last name" required />
-            </div>
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+        <input type="hidden" name="id" value="${data.id}" />
+        <div class="mb-3 row g-3">
+          <div class="col-md-6">
+            <label for="vehicleNumber" class="form-label">Vehicle Number</label>
+            <input type="text" class="form-control" id="vehicleNumber" name="vehicleNumber" value="${data.vehicle_info.vehicleNumber}" placeholder="e.g. ABC-1234" required />
           </div>
-          <div class="mb-3 row">
-            <div class="col-md-6">
-              <label for="mobile" class="form-label">Phone Number:</label>
-              <input type="tel" class="form-control" id="mobile" name="mobile" value="${data.mobile}" placeholder="Enter phone number" required />
-            </div>
-            <div class="col-md-6">
-              <label for="email" class="form-label">Email Address:</label>
-              <input type="email" class="form-control" id="email" name="email" value="${data.email}" placeholder="Enter email address" />
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="address" class="form-label">Residential Address:</label>
-            <textarea class="form-control" id="address" name="address" placeholder="Enter residential address" required>${data.nok_info.address}</textarea>
-          </div>
-          <div class="card mb-3">
-            <div class="card-header fw-bold">Next of Kin (nok) Information</div>
-            <div class="card-body">
-              <div class="mb-3">
-                <label for="nokname" class="form-label">Fullname:</label>
-                <input type="text" id="nokname" name="nokname" value="${data.nok_info.nokname}"class="form-control" placeholder="Enter nok fullname" required />
-              </div>
-              <div class="mb-3 row">
-                <div class="col-md-6">
-                  <label for="nokmobile" class="form-label">Phone Number:</label>
-                  <input type="tel" class="form-control" id="nokmobile" name="nokmobile"  value="${data.nok_info.nokmobile}"  placeholder="Enter nok phone number" required />
-                </div>
-                <div class="col-md-6">
-                  <label for="relationship" class="form-label">Relationship:</label>
-                  <select name="relationship" class="form-control" required>
-                    <option value="">Select Relationship</option>
-                    <option value="${data.nok_info.relationship}" selected>${data.nok_info.relationship}</option>`;
+          <div class="col-md-6">
+            <label for="vehicleType" class="form-label">Vehicle Type</label>
+            <select class="form-select" id="vehicleType" name="vehicleType" required>
+              <option value="">-- Select Vehicle Type --</option>
+              <option value="${data.vehicle_info.vehicleType}">${data.vehicle_info.vehicleType}</option>
+          `;
 
-    const options = ["father", "mother", "child", "brother", "sister", "other"];
+    const options = ["bus", "car", "van", "truck", "other"];
     for (const opt of options) {
-      if (opt != data.nok_info.relationship) {
-        content += `<option value="${opt}">${opt[0].toUpperCase()}${opt.slice(1)}</option>`
+      if (opt != data.vehicle_info.vehicleType) {
+        content += `<option selected value="${opt}">${opt[0].toUpperCase()}${opt.slice(1)}</option>`
       }
     }
-    content +=  `
-              </select>
+    content += `
+          </select>
+          </div>
+            <div class="col-md-6">
+            <label for="model" class="form-label">Model</label>
+            <input type="text" class="form-control" id="model" name="model" value="${data.vehicle_info.model}" placeholder="e.g. Toyota Hiace" required />
+          </div>
+          <div class="col-md-6">
+            <label for="capacity" class="form-label">Seating Capacity</label>
+            <input type="number" class="form-control" id="capacity" name="capacity" value="${data.vehicle_info.capacity}" min="1" required />
+          </div>
+          <div class="col-md-12">
+            <label for="plateNumber" class="form-label">Plate Number:</label>
+            <input type="text" class="form-control" id="plateNumber" name="plateNumber" value="${data.vehicle_info.plateNumber}" placeholder="e.g. OSUN-1234" required />
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header fw-bold">Garage Information</div>
+          <div class="card-body">
+            <p class="form-text text-muted">At least 2 Garage is required</p>
+            <div class="row g-3" id="garage">`;
+        for (const i in data.vehicle_info.garages) {
+            content += `
+            <div class="col-md-6">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Enter garage name" name="garages[]"  value="${data.vehicle_info.garages[i]}" />
+                  <button class="btn btn-danger" type="button" title="Remove garage" onclick="removeGarage(this)" ${i<2 &&'disabled'}>
+                    <i class="fa fa-times-circle"></i>
+                  </button>
+                </div>
+              </div>
+            `;
+        }
+              content += `
+              <div class="col-md-12 d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-primary" onclick="addGarage(this)">
+                  add
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        <div class="card mb-3">
+          <div class="card-header fw-bold">
+            Owner's / Driver's Information
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Fullname:</label>
+                  <input type="text" id="name" name="name" value="${data.name}" class="form-control" placeholder="Enter fullname" required />
+                </div>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email Address:</label>
+                  <input type="email" class="form-control" id="email" name="email" value="${data.email}" placeholder="Enter email address" />
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="uploader" class="form-label">Upload Image</label>
+                <label for="uploader" style="cursor: pointer" class="position-relative d-block">
+                  <img src="/static/images/driver/${data.image}" class="img-fluid rounded preview-img border w-100 border-1 border-primary p-1" alt="" title="Upload Image" style="height: 125px" />
+                  <input type="file" name="image" id="uploader" accept="image/*" class="d-none" onchange="imgs(this, '.preview-img')" />
+                  <span class="position-absolute top-50 start-50 translate-middle badge bg-info">Click here</span>
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="dmobile" class="form-label">Phone Number:</label>
+              <input type="tel" class="form-control" id="dmobile" name="mobile" value="${data.mobile}" placeholder="Enter phone number" required />
+            </div>
+          </div>
+        </div>
       <div class="mb-3 d-flex justify-content-end gap-3 align-items-center">
         <button class="btn btn-primary order-1" name="updateDriver" type="submit">
           Submit
@@ -311,7 +428,7 @@
         <button type="reset" class="btn btn-danger">Cancel</button>
       </div>
     </form>`;
-    $('#passengerData').html(content);
+    $('#driverData').html(content);
   }
 </script>
 {% endblock %}

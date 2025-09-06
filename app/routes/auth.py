@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from ..models import Passenger, Vehicle, db
+from werkzeug.security import generate_password_hash
 from ..utils import to_dict, uploadImage, getImageSize, imagePath
 import re
 
@@ -25,7 +26,6 @@ def login():
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 @auth_bp.route("/register/<who>", methods=["GET", "POST"])
-
 def register(who="passenger"):
     if who not in ['passenger', 'vehicle']:
         return None, 404
@@ -124,3 +124,37 @@ def register(who="passenger"):
             # print(request.form, request.files, sep='\n')
             flash(msg[0], (msg[1]))
     return render_template("register.html", who=who, pageTitle=pageTitle)
+
+@auth_bp.route("/forget-password", methods=["GET", "POST"])
+def forgetRestPass():
+    msg = ''
+    if request.method == 'POST' and 'forgotP' in request.form:
+        # Create variables for easy access
+        email = request.form['email']
+        mobile = request.form['mobile']
+        # Check if account exists
+        user = Vehicle.query.filter_by(email=email, mobile=mobile).first()
+        if user: return [mobile, True]
+        else: return ['Invalid Credential!', False]
+    if request.method == 'POST'and 'resetP' in request.form:
+        # Create variables for easy access
+        msg = ''
+        npass = request.form['npass']
+        cpass = request.form['cpass']
+        mobile = request.form['mobile']
+        # validation checks
+        if not npass or not cpass or not mobile:
+            msg = ['Please fill out the form!', 'error']
+        elif npass != cpass:
+            msg = ['Two password does not match!', 'error']
+        else:
+            update = Vehicle.query.filter_by(mobile=mobile).first()
+            password = generate_password_hash(npass)
+            update.password = password
+            try:
+                db.session.commit()
+                return ['Password reset successfully!', 'success']
+            except:
+                db.session.rollback()
+                return ['Unable to reset Password, Please try again!', 'error']
+    return msg

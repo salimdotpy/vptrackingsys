@@ -392,11 +392,11 @@
   $(document).ready(function () {
     var hash = window.location.hash;
     if (hash) $('ul.nav a[href="' + hash + '"]').click();
-    $(".app-name").text("Download QR-Code").addClass("align-self-center");
-    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
-    $("#s_logo").hide();
+    $('.app-name').text('Download QR-Code').addClass('align-self-center');
+    $('.s_icon').html("<a href='/'><i class='fa fa-arrow-left' " + '></i></a>');
+    $('#s_logo').hide();
 
-    generateQRCode("qrcode", "{{passenger.qrcode}}|&|{{passenger.id}}");
+    generateQRCode('qrcode', '{{passenger.qrcode}}|&|{{passenger.id}}');
   });
 </script>
 {% else %}
@@ -404,31 +404,16 @@
   $(document).ready(function () {
     var hash = window.location.hash;
     if (hash) $('ul.nav a[href="' + hash + '"]').click();
-    $(".app-name").text("{{ pageTitle }}").addClass("align-self-center");
-    $(".s_icon").html("<a href='/'><i class='fa fa-arrow-left' " + "></i></a>");
-    $("#s_logo").hide();
+    $('.app-name').text('{{ pageTitle }}').addClass('align-self-center');
+    $('.s_icon').html("<a href='/'><i class='fa fa-arrow-left' " + '></i></a>');
+    $('#s_logo').hide();
   });
-  var _seePass = $(".seePass"),
-    _pass = $(".pass");
-  _seePass.on("click", function () {
-    $(this).toggleClass("fa-eye-slash").toggleClass("fa-eye");
-    if ($(this).hasClass("fa-eye-slash")) _pass.attr("type", "text");
-    else _pass.attr("type", "password");
+  var _seePass = $('.seePass'),
+    _pass = $('.pass');
+  _seePass.on('click', function () {
+    $(this).toggleClass('fa-eye-slash').toggleClass('fa-eye');
+    if ($(this).hasClass('fa-eye-slash')) _pass.attr('type', 'text');
+    else _pass.attr('type', 'password');
   });
-  function addGarage(e) {
-    const garageCon = `
-    <div class="col-md-6">
-        <div class="input-group">
-            <input type="text" class="form-control" placeholder="Enter garage name" name="garages[]" />
-            <button class="btn btn-danger" type="button" title="Remove garage" onclick="removeGarage(this)">
-                <i class="fa fa-times-circle"></i>
-            </button>
-        </div>
-    </div>`;
-    $(e).parent().before(garageCon);
-  }
-  function removeGarage(e) {
-    $(e).parent().parent().remove();
-  }
 </script>
 {% endif %} {% endblock %}

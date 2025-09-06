@@ -169,9 +169,11 @@
         </div>
       </div>
     </div>
+
+    {% if driver %}
     <div
       class="modal fade"
-      id="studentListModal"
+      id="editPassword"
       tabindex="-1"
       role="dialog"
       aria-labelledby="modalTitleId"
@@ -180,7 +182,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="modalTitleId">Developer List</h5>
+            <h5 class="modal-title" id="modalTitleId">Change Password</h5>
             <button
               type="button"
               class="btn-close"
@@ -188,40 +190,238 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
-            <ul class="list-group">
-              <li
-                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+          <form method="post" action="{{url_for('driver.password')}}">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="opass" class="form-label">Current Password</label>
+                <input
+                  type="password"
+                  name="opass"
+                  id="opass"
+                  class="form-control"
+                  placeholder="Enter Current Password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="npass" class="form-label">New Password</label>
+                <input
+                  type="password"
+                  name="npass"
+                  id="npass"
+                  class="form-control"
+                  placeholder="Enter New Password"
+                  required
+                />
+              </div>
+              <div>
+                <label for="cpass" class="form-label">Confirm Password</label>
+                <input
+                  type="password"
+                  name="cpass"
+                  id="cpass"
+                  class="form-control"
+                  placeholder="Enter Password Again"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
               >
-                NAME
-                <span class="badge bg-info badge-pill">MATRIC NO</span>
-              </li>
-              <li
-                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-              >
-                NAME
-                <span class="badge bg-info badge-pill">MATRIC NO</span>
-              </li>
-              <li
-                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-              >
-                NAME
-                <span class="badge bg-info badge-pill">MATRIC NO</span>
-              </li>
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+
+    <div
+      class="modal fade"
+      id="editProfile"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalTitleId"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitleId">Update Profile</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form
+            method="post"
+            enctype="multipart/form-data"
+            action="{{url_for('driver.profile')}}"
+          >
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="modal-body">
+              <div class="row mb-3 g-3">
+                <div class="col-md-8">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Fullname</label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      class="form-control"
+                      placeholder="Enter your name"
+                      value="{{ driver.name }}"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="email" class="form-label">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      value="{{ driver.email }}"
+                      class="form-control"
+                      placeholder="Enter email"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label for="uploader" class="form-label">Upload Image</label>
+                  <label
+                    for="uploader"
+                    style="cursor: pointer"
+                    class="position-relative d-block"
+                  >
+                    <img
+                      src="/static/images/driver/{{driver.image}}"
+                      class="img-fluid rounded preview-img border w-100 border-1 border-primary p-1"
+                      alt=""
+                      title="Upload Image"
+                      style="height: 125px"
+                    />
+                    <input
+                      type="file"
+                      name="image"
+                      id="uploader"
+                      accept="image/*"
+                      class="d-none"
+                      onchange="imgs(this, '.preview-img')"
+                    />
+                    <span
+                      class="position-absolute top-50 start-50 translate-middle badge bg-info"
+                      >Click here</span
+                    >
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label for="mobile" class="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  name="mobile"
+                  id="mobile"
+                  value="{{ driver.mobile }}"
+                  class="form-control"
+                  placeholder="Enter phone number"
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="addTrip"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalTitleId"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitleId">Add New Trip</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form method="post" action="{{url_for('driver.dashboard')}}">
+            <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+            <div class="modal-body">
+              <div class="row mb-3 g-3">
+                <div class="col-md-6">
+                  <label for="from" class="form-label">Starting Point</label>
+                  <select class="form-select" id="from" name="from" required>
+                    <option value="">-- Select Starting Point --</option>
+                    {% for garage in driver.vehicle_info.garages %}
+                    <option value="{{ garage }}">{{ garage }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <div>
+                    <label for="to" class="form-label">Destination (To)</label>
+                    <select class="form-select" id="to" name="to" required>
+                      <option value="">-- Select Destination --</option>
+                      {% for garage in driver.vehicle_info.garages %}
+                      <option value="{{ garage }}">{{ garage }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label for="description" class="form-label">Description</label>
+                <textarea
+                  class="form-control"
+                  id="description"
+                  name="description"
+                  placeholder="Write short note"
+                  required
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
     <!-- Bootstrap JavaScript Libraries -->
     <script src="{{ url_for('static', filename='js/jquery-2.2.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
