@@ -371,13 +371,15 @@
               aria-label="Close"
             ></button>
           </div>
-          <form method="post" action="{{url_for('driver.dashboard')}}">
+          <form method="post" action="{{url_for('driver.trips')}}">
             <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
             <div class="modal-body">
               <div class="row mb-3 g-3">
                 <div class="col-md-6">
-                  <label for="from" class="form-label">Starting Point</label>
-                  <select class="form-select" id="from" name="from" required>
+                  <label for="from" class="form-label"
+                    >Starting Point (from)</label
+                  >
+                  <select class="form-select" id="from" name="From" required>
                     <option value="">-- Select Starting Point --</option>
                     {% for garage in driver.vehicle_info.garages %}
                     <option value="{{ garage }}">{{ garage }}</option>
@@ -403,7 +405,6 @@
                   id="description"
                   name="description"
                   placeholder="Write short note"
-                  required
                 ></textarea>
               </div>
             </div>
@@ -415,7 +416,9 @@
               >
                 Close
               </button>
-              <button type="submit" class="btn btn-primary">Update</button>
+              <button type="submit" class="btn btn-primary" name="addTrip">
+                Submit
+              </button>
             </div>
           </form>
         </div>

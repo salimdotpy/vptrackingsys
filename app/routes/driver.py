@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
-from ..models import Passenger, Vehicle, db
+from ..models import Trip, TripLog, PassengerTrip, Vehicle, db
 from werkzeug.security import generate_password_hash
 from sqlalchemy import or_
 from ..utils import to_dict, uploadImage, getImageSize, imagePath
@@ -13,15 +13,101 @@ def dashboard():
     widget = {}
     if 'driver' in session:
         driver = Vehicle.query.get(session['driver']['id'])
+        widget['danger_trip'] = db.session.query(Trip).filter_by(status='danger').count()
+        widget['pending_trip'] = db.session.query(Trip).filter_by(status='pending').count()
+        widget['success_trip'] = db.session.query(Trip).filter_by(status='success').count()
+        widget['logs'] = TripLog.query.count()
         return render_template('dashboard.html', pageTitle=pageTitle, driver=driver, widget=widget)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login'))
 
-@drive_bp.route("/logout")
-def logout():
-    session.pop('driver', None)
-    flash('You have successfully logged out!', ('warning'))
-    return redirect(url_for('auth.login'))
+@drive_bp.route("/trips", methods=['GET', 'POST'])
+@drive_bp.route("/trips/<status>", methods=['GET', 'POST'])
+def trips(status=None):
+    if 'driver' in session:
+        driver = Vehicle.query.get(session['driver']['id'])
+        trips = Trip.query.all()
+        trips = to_dict(trips, Trip)
+        pageTitle = f"Manage Trips"
+        if status:
+            pageTitle = f"Manage {status.capitalize()} Trips"
+            trips = Trip.query.filter_by(status=status)
+            trips = to_dict(trips, Trip)
+        
+        if request.method == "POST" and 'addTrip' in request.form:
+            # Create variables for easy access
+            From = request.form.get("From")
+            to = request.form.get("to")
+            description = request.form.get("description").strip()
+            # Validation checks
+            checkTrip  = Trip.query.filter_by(vehicle_id=driver.id, status='pending').first()
+            for key, val in request.form.items():
+                if (key not in ['description', 'addTrip'] and not val):
+                    msg = ['Please fill out the form!', 'error']
+            if From == to:
+                msg = ["Starting Point and Destination can't be the same", 'error']
+            elif checkTrip:
+                msg = ["Can't have more than one uncompleted trip!", 'error']
+            else:
+                trip = Trip(From=From, to=to, description=description, vehicle_id=driver.id, status='pending')
+                db.session.add(trip)
+                try:
+                    db.session.commit()
+                    msg = ['Trip created successfully!', 'success']
+                except:
+                    db.session.rollback()
+                    msg = ['Unable to create trip, please try again later!', 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        return render_template('manage-trip.html', pageTitle=pageTitle, driver=driver, trips=trips)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('login'))
+
+@drive_bp.route("/passengers/<id>", methods=['GET', 'POST'])
+@drive_bp.route("/passengers/<id>/<status>", methods=['GET', 'POST'])
+def passengers(id, status=None):
+    if not id:
+        return redirect(request.referrer)
+    if 'driver' in session:
+        driver = Vehicle.query.get(session['driver']['id'])
+        trip = Trip.query.get(id)
+        passengers = PassengerTrip.query.filter_by(trip_id=id).all()
+        passengers = to_dict(passengers, PassengerTrip)
+        pageTitle = f"Manage {trip.From} to {trip.to} Passengers"
+        if status:
+            status = ' '.join(status.split('-'))
+            pageTitle = f"Manage {status.capitalize()} {trip.From} to {trip.to} Passengers"
+            passengers = PassengerTrip.query.filter_by(status=status)
+            passengers = to_dict(passengers, PassengerTrip)
+        
+        if request.method == "POST" and 'addPassenger' in request.form:
+            # Create variables for easy access
+            From = request.form.get("From")
+            to = request.form.get("to")
+            description = request.form.get("description").strip()
+            # Validation checks
+            checkTrip  = Trip.query.filter_by(vehicle_id=driver.id, status='pending').first()
+            for key, val in request.form.items():
+                if (key not in ['description', 'addTrip'] and not val):
+                    msg = ['Please fill out the form!', 'error']
+            if From == to:
+                msg = ["Starting Point and Destination can't be the same", 'error']
+            elif checkTrip:
+                msg = ["Can't have more than one uncompleted trip!", 'error']
+            else:
+                trip = Trip(From=From, to=to, description=description, vehicle_id=driver.id, status='pending')
+                db.session.add(trip)
+                try:
+                    db.session.commit()
+                    msg = ['Trip created successfully!', 'success']
+                except:
+                    db.session.rollback()
+                    msg = ['Unable to create trip, please try again later!', 'error']
+            flash(msg[0], (msg[1]))
+            return redirect(request.referrer)
+        return render_template('manage-passenger.html', pageTitle=pageTitle, driver=driver, passengers=passengers, trip=trip)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('login'))
 
 @drive_bp.route("/profile", methods=['POST'], endpoint="profile")
 def profileUpdate():
@@ -91,3 +177,9 @@ def passwordUpdate():
         return redirect(request.referrer)
     flash('Please login first!', ('warning'))
     return redirect(url_for('login'))
+
+@drive_bp.route("/logout")
+def logout():
+    session.pop('driver', None)
+    flash('You have successfully logged out!', ('warning'))
+    return redirect(url_for('auth.login'))
