@@ -271,7 +271,10 @@
             pform.find('[name="passenger_id"]').val(data.id);
             pform.find('[name="name"]').val(data.name);
             pform.find('[name="mobile"]').val(data.mobile);
-            // console.log(data);
+            if (loc_pos) {
+              $('[name="latitude"]').val(loc_pos.lat);
+              $('[name="longitude"]').val(loc_pos.lng);
+            }
           }
         })
         .catch((err) => {
@@ -300,11 +303,16 @@
   });
   $('#passengerCrud')
     .on('show.bs.modal', function (event) {
+      getLocation();
       scanAgainBtn.find('.text').text('Scanning...');
       scanAgainBtn.find('.spinner-border').removeClass('d-none');
       $('#qr-video-con').removeClass('d-none');
       $('#pinfo').addClass('d-none');
       qrScanner.start();
+      if (loc_pos) {
+        $('[name="latitude"]').val(loc_pos.lat);
+        $('[name="longitude"]').val(loc_pos.lng);
+      }
     })
     .on('hidden.bs.modal', function (event) {
       qrScanner.stop();
