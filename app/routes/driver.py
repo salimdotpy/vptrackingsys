@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
-from ..models import Trip, TripLog, PassengerTrip, Vehicle, db
+from ..models import Trip, TripLog, PassengerTrip, Passenger, Vehicle, db
 from werkzeug.security import generate_password_hash
 from sqlalchemy import or_
 from ..utils import to_dict, uploadImage, getImageSize, imagePath
@@ -71,14 +71,19 @@ def passengers(id, status=None):
     if 'driver' in session:
         driver = Vehicle.query.get(session['driver']['id'])
         trip = Trip.query.get(id)
-        passengers = PassengerTrip.query.filter_by(trip_id=id).all()
-        passengers = to_dict(passengers, PassengerTrip)
+        passeng = PassengerTrip.query.filter_by(trip_id=id).all()
+        passengers = []
+        for p in passeng:
+            data = to_dict(p, PassengerTrip)
+            data['passenger'] = to_dict(p.passenger, Passenger)
+            passengers.append(data)
         pageTitle = f"Manage {trip.From} to {trip.to} Passengers"
         if status:
             status = ' '.join(status.split('-'))
             pageTitle = f"Manage {status.capitalize()} {trip.From} to {trip.to} Passengers"
-            passengers = PassengerTrip.query.filter_by(status=status)
-            passengers = to_dict(passengers, PassengerTrip)
+            passeng = PassengerTrip.query.filter_by(status=status)
+            passengers = to_dict(passeng, PassengerTrip)
+            passengers['passenger'] = to_dict(passeng.passenger, Passenger)
         
         if request.method == "POST" and 'addPassenger' in request.form:
             # Create variables for easy access
@@ -93,7 +98,7 @@ def passengers(id, status=None):
             if checkTrip:
                 msg = ["This passenger already signed in to this trip!", 'error']
             else:
-                passenger = PassengerTrip(passenger_id=passenger_id, trip_id=id, vehicle_id=driver.id, latitude=latitude, longitude=longitude, status='signin')
+                passenger = PassengerTrip(passenger_id=passenger_id, trip_id=id, latitude=latitude, longitude=longitude, status='signin')
                 db.session.add(passenger)
                 try:
                     db.session.commit()

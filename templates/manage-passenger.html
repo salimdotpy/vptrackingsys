@@ -88,8 +88,8 @@
             <thead>
               <tr>
                 <th>S/N</th>
-                <th>Passenger Info</th>
-                <th>Next of Kin Info</th>
+                <th style="min-width: 120px">Passenger Info</th>
+                <th style="min-width: 150px">Next of Kin Info</th>
                 <th>Latitude</th>
                 <th>Longitude</th>
                 <th>Status</th>
@@ -98,31 +98,38 @@
               </tr>
             </thead>
             <tbody>
-              {% if passengers %} {% for passenger in passengers %}
+              {% if passengers %} {% for p in passengers %}
               <tr>
                 <td>{{loop.index}}</td>
-                <td>{{passenger.From}}</td>
-                <td>{{ passenger.to }}</td>
-                <td>{{ passenger.description }}</td>
+                <td class="small">
+                  <small>
+                    <b>Name: </b>{{ p.passenger.name }},
+                    <b>Phone number: </b> {{ p.passenger.mobile }},
+                  </small>
+                </td>
+                <td class="small">
+                  <small>
+                    <b>Name: </b>{{ p.passenger.nok_info.nokname }},
+                    <b>Phone number: </b> {{ p.passenger.nok_info.nokmobile }},
+                    <b>Relationship: </b> {{ p.passenger.nok_info.relationship
+                    }}, <b>Address: </b> {{ p.passenger.nok_info.address }},
+                  </small>
+                </td>
+                <td>{{p.latitude}}</td>
+                <td>{{ p.longitude }}</td>
                 <td>
-                  <span
-                    class="badge rounded-pill {% if passenger.status == 'pending' %}text-bg-info{% else %}{{passenger.status}}{% endif %}"
-                    >{{passenger.status|title}}</span
+                  <span class="badge rounded-pill bg-info"
+                    >{{p.status|title}}</span
                   >
                 </td>
+                <td>{{p.created_at.strftime("%a, %d %b %Y at %H:%M")}}</td>
                 <td>
-                  {{passenger.updated_at.strftime("%a, %d %b %Y at %H:%M")}}
-                </td>
-                <td class="text-right">
-                  <a
-                    class="btn btn-primary btn-sm"
-                    href="{{ url_for('driver.passengers') }}"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="left"
-                    title="View Passenger in this passenger"
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm text-nowrap"
                   >
-                    <i class="fa fa-laptop"></i>
-                  </a>
+                    Sign out
+                  </button>
                 </td>
               </tr>
               {%else%}
