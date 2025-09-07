@@ -82,27 +82,25 @@ def passengers(id, status=None):
         
         if request.method == "POST" and 'addPassenger' in request.form:
             # Create variables for easy access
-            From = request.form.get("From")
-            to = request.form.get("to")
-            description = request.form.get("description").strip()
+            passenger_id = request.form.get("passenger_id")
+            latitude = request.form.get("latitude")
+            longitude = request.form.get("longitude")
             # Validation checks
-            checkTrip  = Trip.query.filter_by(vehicle_id=driver.id, status='pending').first()
+            checkTrip  = PassengerTrip.query.filter_by(passenger_id=passenger_id, trip_id=id).first()
             for key, val in request.form.items():
-                if (key not in ['description', 'addTrip'] and not val):
+                if (key not in ['addPassenger'] and not val):
                     msg = ['Please fill out the form!', 'error']
-            if From == to:
-                msg = ["Starting Point and Destination can't be the same", 'error']
-            elif checkTrip:
-                msg = ["Can't have more than one uncompleted trip!", 'error']
+            if checkTrip:
+                msg = ["This passenger already signed in to this trip!", 'error']
             else:
-                trip = Trip(From=From, to=to, description=description, vehicle_id=driver.id, status='pending')
-                db.session.add(trip)
+                passenger = PassengerTrip(passenger_id=passenger_id, trip_id=id, vehicle_id=driver.id, latitude=latitude, longitude=longitude, status='signin')
+                db.session.add(passenger)
                 try:
                     db.session.commit()
-                    msg = ['Trip created successfully!', 'success']
+                    msg = ['Passenger signed in successfully!', 'success']
                 except:
                     db.session.rollback()
-                    msg = ['Unable to create trip, please try again later!', 'error']
+                    msg = ['Unable to sign passenger in, please try again later!', 'error']
             flash(msg[0], (msg[1]))
             return redirect(request.referrer)
         return render_template('manage-passenger.html', pageTitle=pageTitle, driver=driver, passengers=passengers, trip=trip)

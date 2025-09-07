@@ -142,7 +142,6 @@
       </div>
       <form method="post" id="pform">
         <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
-        <input type="hidden" id="passenger_id" name="passenger_id" />
         <div class="modal-body px-4">
           <div class="row g-3">
             <div class="col-md-12">
@@ -184,6 +183,11 @@
                         name="name"
                         class="form-control"
                         readonly
+                      />
+                      <input
+                        type="hidden"
+                        id="passenger_id"
+                        name="passenger_id"
                       />
                     </div>
                     <div class="col-md-6">
@@ -234,7 +238,9 @@
           >
             Close
           </button>
-          <button type="submit" class="btn btn-primary">Sign in</button>
+          <button type="submit" class="btn btn-primary" name="addPassenger">
+            Sign in
+          </button>
         </div>
       </form>
     </div>
@@ -252,30 +258,32 @@
 
   const qrScanner = new QrScanner(videoElem, (result) => {
     let id = result.split('|&|')[1];
-    fetch(`/get-passenger/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.err) {
-          toast_it({ text: data.err, icon: 'error' });
-        } else {
-          pform.find('[name="passenger_id"]').val(data.id);
-          pform.find('[name="name"]').val(data.name);
-          pform.find('[name="mobile"]').val(data.mobile);
-          // console.log(data);
-        }
-      })
-      .catch((err) => {
-        console.log(err.err);
-        toast_it({ text: err.err, icon: 'error' });
-      })
-      .finally(() => {
-        scanAgainBtn.find('.text').text('Scan Again');
-        scanAgainBtn.find('.spinner-border').addClass('d-none');
-        scanAgainBtn.removeAttr('disabled');
-        $('#qr-video-con').addClass('d-none');
-        $('#pinfo').removeClass('d-none');
-        qrScanner.stop();
-      });
+    if (id) {
+      fetch(`/get-passenger/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.err) {
+            toast_it({ text: data.err, icon: 'error' });
+          } else {
+            pform.find('[name="passenger_id"]').val(data.id);
+            pform.find('[name="name"]').val(data.name);
+            pform.find('[name="mobile"]').val(data.mobile);
+            // console.log(data);
+          }
+        })
+        .catch((err) => {
+          console.log(err.err);
+          toast_it({ text: err.err, icon: 'error' });
+        })
+        .finally(() => {
+          scanAgainBtn.find('.text').text('Scan Again');
+          scanAgainBtn.find('.spinner-border').addClass('d-none');
+          scanAgainBtn.removeAttr('disabled');
+          $('#qr-video-con').addClass('d-none');
+          $('#pinfo').removeClass('d-none');
+          qrScanner.stop();
+        });
+    }
   });
   scanAgainBtn.on('click', () => {
     scanAgainBtn.find('.text').text('Scanning...');
@@ -284,6 +292,7 @@
     $('#pinfo').addClass('d-none');
     scanAgainBtn.attr('disabled', true);
     qrScanner.start();
+    pform.find('#passenger_id').val('');
     pform[0].reset();
   });
   $('#passengerCrud')
@@ -297,12 +306,13 @@
     .on('hidden.bs.modal', function (event) {
       qrScanner.stop();
       pform[0].reset();
+      pform.find('#passenger_id').val('');
     });
 </script>
 <script>
   try {
     window.onload = () => getLocation2();
-    console.log(cord_pos);
+    // console.log(cord_pos);
   } catch (error) {
     console.log(error);
   }
@@ -314,7 +324,11 @@
     $('.fa-power-off').hide();
     $('#passengers').DataTable();
     $('#passengers_wrapper').addClass('table-responsive');
-    console.log(cord_pos);
+
+    if (cord_pos) {
+      $('[name="latitude"]').val(cord_pos.lat);
+      $('[name="longitude"]').val(cord_pos.lng);
+    }
   });
 
   $('#deleteModal').on('show.bs.modal', function (event) {
