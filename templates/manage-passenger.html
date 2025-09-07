@@ -327,11 +327,6 @@
     $('.fa-power-off').hide();
     $('#passengers').DataTable();
     $('#passengers_wrapper').addClass('table-responsive');
-
-    if (loc_pos) {
-      $('[name="latitude"]').val(loc_pos.lat);
-      $('[name="longitude"]').val(loc_pos.lng);
-    }
   });
 
   $('#deleteModal').on('show.bs.modal', function (event) {

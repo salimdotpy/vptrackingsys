@@ -271,6 +271,7 @@ function getLocation() {
 }
 
 function showPosition(position) {
+  toast_it({ text: 'is working' });
   loc_pos = position
     ? { lat: position.coords.latitude, lng: position.coords.longitude }
     : { lat: 6.1334096, lng: 6.8075828 };
