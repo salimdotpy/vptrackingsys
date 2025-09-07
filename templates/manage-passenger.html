@@ -1,4 +1,15 @@
-{% extends 'layout.html' %}{% block content %}
+{% extends 'layout.html' %}{% block content %} {% block style %}
+<style>
+  #qr-video {
+    width: 100% !important;
+    height: auto !important; /* keeps aspect ratio */
+    max-height: 250px !important; /* prevents it from being too tall */
+    object-fit: cover !important; /* fills box nicely */
+    display: block !important;
+    transform: scaleX(-1) !important;
+  }
+</style>
+{% endblock %}
 <nav class="breadcrumb">
   <a class="breadcrumb-item" href="{{ url_for('driver.dashboard') }}"
     >Dashboard</a
@@ -170,11 +181,6 @@
                       id="qr-video"
                       disablepictureinpicture=""
                       playsinline=""
-                      style="
-                        transform: scaleX(-1);
-                        width: 100% !important;
-                        height: 150px !important;
-                      "
                     ></video>
                   </div>
                   <div class="row g-3 d-none" id="pinfo">
@@ -271,10 +277,6 @@
             pform.find('[name="passenger_id"]').val(data.id);
             pform.find('[name="name"]').val(data.name);
             pform.find('[name="mobile"]').val(data.mobile);
-            if (loc_pos) {
-              $('[name="latitude"]').val(loc_pos.lat);
-              $('[name="longitude"]').val(loc_pos.lng);
-            }
           }
         })
         .catch((err) => {
@@ -309,10 +311,6 @@
       $('#qr-video-con').removeClass('d-none');
       $('#pinfo').addClass('d-none');
       qrScanner.start();
-      if (loc_pos) {
-        $('[name="latitude"]').val(loc_pos.lat);
-        $('[name="longitude"]').val(loc_pos.lng);
-      }
     })
     .on('hidden.bs.modal', function (event) {
       qrScanner.stop();
