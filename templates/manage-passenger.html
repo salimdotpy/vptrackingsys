@@ -147,12 +147,12 @@
             <div class="col-md-12">
               <div class="card">
                 <div
-                  class="card-header fw-bold d-flex align-items-center justify-content-between"
+                  class="card-header fw-bold d-flex flex-wrap align-items-center"
                 >
                   <span>Passenger Information</span>
                   <button
                     id="startBtn"
-                    class="btn btn-primary"
+                    class="btn btn-primary btn-sm ms-auto"
                     type="button"
                     disabled
                   >
@@ -170,8 +170,11 @@
                       id="qr-video"
                       disablepictureinpicture=""
                       playsinline=""
-                      style="transform: scaleX(-1)"
-                      width="100%"
+                      style="
+                        transform: scaleX(-1);
+                        width: 100% !important;
+                        height: 150px !important;
+                      "
                     ></video>
                   </div>
                   <div class="row g-3 d-none" id="pinfo">
@@ -311,7 +314,7 @@
 </script>
 <script>
   try {
-    window.onload = () => getLocation2();
+    window.onload = () => getLocation();
     // console.log(cord_pos);
   } catch (error) {
     console.log(error);
@@ -325,9 +328,9 @@
     $('#passengers').DataTable();
     $('#passengers_wrapper').addClass('table-responsive');
 
-    if (cord_pos) {
-      $('[name="latitude"]').val(cord_pos.lat);
-      $('[name="longitude"]').val(cord_pos.lng);
+    if (loc_pos) {
+      $('[name="latitude"]').val(loc_pos.lat);
+      $('[name="longitude"]').val(loc_pos.lng);
     }
   });
 
