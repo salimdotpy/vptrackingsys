@@ -252,7 +252,9 @@ $(document).on('mouseenter mouseleave', '.side-nav li', function (ev) {
     }
   }
 });
-let loc_pos = { lat: 7.7200717, lng: 4.41305 };
+
+let cord_pos,
+  loc_pos = { lat: 7.7200717, lng: 4.41305 };
 //Get location function
 function getLocation() {
   if (navigator.geolocation) {
@@ -364,6 +366,7 @@ function addGarage(e) {
     </div>`;
   $(e).parent().before(garageCon);
 }
+
 function removeGarage(e) {
   $(e).parent().parent().remove();
 }
@@ -371,6 +374,53 @@ function removeGarage(e) {
 const tooltipTriggerList = document.querySelectorAll(
   '[data-bs-toggle="tooltip"]'
 );
+
 const tooltipList = [...tooltipTriggerList].map(
   (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
 );
+
+async function getLocation2() {
+  return new Promise((resolve, reject) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          cord_pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          resolve(cord_pos);
+        },
+        (error) => {
+          let errorMessage = '';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'User denied the request for Geolocation.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'The request to get user location timed out.';
+              break;
+            case error.UNKNOWN_ERROR:
+              errorMessage = 'An unknown error occurred.';
+              break;
+          }
+          console.error(errorMessage);
+          toast_it({ text: errorMessage, icon: 'warning' });
+          cord_pos = { lat: 7.733841, lng: 4.421263 }; // Fallback coordinates
+          resolve(cord_pos);
+        },
+        { enableHighAccuracy: true, maximumAge: 5000 }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+      cord_pos = { lat: 7.733841, lng: 4.421263 }; // Fallback coordinates
+      toast_it({
+        text: 'Geolocation is not supported by this browser.',
+        icon: 'error',
+      });
+      resolve(cord_pos);
+    }
+  });
+}

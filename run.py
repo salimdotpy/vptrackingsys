@@ -8,8 +8,8 @@ migrate = Migrate(app, db)
 
 @app.context_processor
 def utility_processor():
-    from app.utils import siteName, getImage
-    return dict(siteName=siteName, getImage=getImage)
+    from app.utils import siteName, getImage, getPassenger
+    return dict(siteName=siteName, getImage=getImage, getPassenger=getPassenger)
 
 if __name__ == '__main__':
     with app.app_context():

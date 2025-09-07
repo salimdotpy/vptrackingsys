@@ -140,16 +140,181 @@
           aria-label="Close"
         ></button>
       </div>
-      <div class="modal-body" id="driverData"></div>
+      <form method="post" id="pform">
+        <input type="hidden" name="csrf_token" value="{{csrf_token()}}" />
+        <input type="hidden" id="passenger_id" name="passenger_id" />
+        <div class="modal-body px-4">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="card">
+                <div
+                  class="card-header fw-bold d-flex align-items-center justify-content-between"
+                >
+                  <span>Passenger Information</span>
+                  <button
+                    id="startBtn"
+                    class="btn btn-primary"
+                    type="button"
+                    disabled
+                  >
+                    <span
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="text">Scanning...</span>
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="" id="qr-video-con">
+                    <video
+                      id="qr-video"
+                      disablepictureinpicture=""
+                      playsinline=""
+                      style="transform: scaleX(-1)"
+                      width="100%"
+                    ></video>
+                  </div>
+                  <div class="row g-3 d-none" id="pinfo">
+                    <div class="col-md-6">
+                      <label for="pname" class="form-label">Name:</label>
+                      <input
+                        type="text"
+                        id="pname"
+                        name="name"
+                        class="form-control"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="pmobile" class="form-label"
+                        >Phone Number:</label
+                      >
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="pmobile"
+                        name="mobile"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="latitude" class="form-label">Latitude:</label>
+              <input
+                type="tel"
+                id="latitude"
+                name="latitude"
+                class="form-control"
+                onkeyup="$(this).val('')"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="longitude" class="form-label">Longitude:</label>
+              <input
+                type="tel"
+                id="longitude"
+                name="longitude"
+                class="form-control"
+                onkeyup="$(this).val('')"
+                required
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Sign in</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
+<script type="module">
+  import QrScanner from "{{ url_for('static', filename='js/qr-scanner.min.js') }}";
+  QrScanner.WORKER_PATH =
+    "{{ url_for('static', filename='js/qr-scanner-worker.min.js') }}";
+
+  const videoElem = document.getElementById('qr-video');
+  const resultElem = document.getElementById('qr-result');
+  const scanAgainBtn = $('#startBtn');
+  const pform = $('#pform');
+
+  const qrScanner = new QrScanner(videoElem, (result) => {
+    let id = result.split('|&|')[1];
+    fetch(`/get-passenger/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.err) {
+          toast_it({ text: data.err, icon: 'error' });
+        } else {
+          pform.find('[name="passenger_id"]').val(data.id);
+          pform.find('[name="name"]').val(data.name);
+          pform.find('[name="mobile"]').val(data.mobile);
+          // console.log(data);
+        }
+      })
+      .catch((err) => {
+        console.log(err.err);
+        toast_it({ text: err.err, icon: 'error' });
+      })
+      .finally(() => {
+        scanAgainBtn.find('.text').text('Scan Again');
+        scanAgainBtn.find('.spinner-border').addClass('d-none');
+        scanAgainBtn.removeAttr('disabled');
+        $('#qr-video-con').addClass('d-none');
+        $('#pinfo').removeClass('d-none');
+        qrScanner.stop();
+      });
+  });
+  scanAgainBtn.on('click', () => {
+    scanAgainBtn.find('.text').text('Scanning...');
+    scanAgainBtn.find('.spinner-border').removeClass('d-none');
+    $('#qr-video-con').removeClass('d-none');
+    $('#pinfo').addClass('d-none');
+    scanAgainBtn.attr('disabled', true);
+    qrScanner.start();
+    pform[0].reset();
+  });
+  $('#passengerCrud')
+    .on('show.bs.modal', function (event) {
+      scanAgainBtn.find('.text').text('Scanning...');
+      scanAgainBtn.find('.spinner-border').removeClass('d-none');
+      $('#qr-video-con').removeClass('d-none');
+      $('#pinfo').addClass('d-none');
+      qrScanner.start();
+    })
+    .on('hidden.bs.modal', function (event) {
+      qrScanner.stop();
+      pform[0].reset();
+    });
+</script>
 <script>
+  try {
+    window.onload = () => getLocation2();
+    console.log(cord_pos);
+  } catch (error) {
+    console.log(error);
+  }
+  // getLocation();
+  // console.log(loc_pos);
+
   $(document).ready(function () {
     $('.app-name').text('{{pageTitle}}');
     $('.fa-power-off').hide();
     $('#passengers').DataTable();
     $('#passengers_wrapper').addClass('table-responsive');
+    console.log(cord_pos);
   });
 
   $('#deleteModal').on('show.bs.modal', function (event) {

@@ -1,6 +1,7 @@
 import json, os, random, time
 from flask import url_for
 from PIL import Image
+from .models import Passenger
 
 def getNumber(length=8):
     characters = '1234567890'
@@ -8,9 +9,14 @@ def getNumber(length=8):
     return random_string
 
 def getImage(image):
-    if os.path.exists(url_for('static', filename=image)[1:]) and os.path.isfile(url_for('static', filename=image)[1:]):
-        return url_for('static', filename=image+'')
+    filename = url_for('static', filename=imagePath(image))[1:]
+    if os.path.exists(filename) and os.path.isfile(filename):
+        return url_for('static', filename=imagePath(image))
     return url_for('static', filename='images/default.png')
+
+def getPassenger(id):
+    passenger = Passenger.query.get(id)
+    return to_dict(passenger, Passenger)
 
 def getImageSize(file, same=True):
     try:
