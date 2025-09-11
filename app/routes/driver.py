@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from ..models import Trip, TripLog, PassengerTrip, Passenger, Vehicle, db
 from werkzeug.security import generate_password_hash
 from sqlalchemy import or_
-from ..utils import to_dict, uploadImage, getImageSize, imagePath
+from ..utils import to_dict, uploadImage, getImageSize, imagePath, parse_record
 import re
 
 drive_bp = Blueprint("driver", __name__, url_prefix='/driver')
@@ -26,13 +26,13 @@ def dashboard():
 def trips(status=None):
     if 'driver' in session:
         driver = Vehicle.query.get(session['driver']['id'])
-        trips = Trip.query.all()
-        trips = to_dict(trips, Trip)
+        records = Trip.query.filter_by(vehicle_id=driver.id).all()
+        trips = parse_record(records, Trip, passengers=PassengerTrip)
         pageTitle = f"Manage Trips"
         if status:
             pageTitle = f"Manage {status.capitalize()} Trips"
-            trips = Trip.query.filter_by(status=status)
-            trips = to_dict(trips, Trip)
+            records = Trip.query.filter_by(vehicle_id=driver.id, status=status).all()
+            trips = parse_record(records, Trip, passengers=PassengerTrip)
         
         if request.method == "POST" and 'addTrip' in request.form:
             # Create variables for easy access
@@ -71,19 +71,14 @@ def passengers(id, status=None):
     if 'driver' in session:
         driver = Vehicle.query.get(session['driver']['id'])
         trip = Trip.query.get(id)
-        passeng = PassengerTrip.query.filter_by(trip_id=id).all()
-        passengers = []
-        for p in passeng:
-            data = to_dict(p, PassengerTrip)
-            data['passenger'] = to_dict(p.passenger, Passenger)
-            passengers.append(data)
+        records = PassengerTrip.query.filter_by(trip_id=id).all()
+        passengers = parse_record(records, PassengerTrip, passenger=Passenger)
         pageTitle = f"Manage {trip.From} to {trip.to} Passengers"
         if status:
-            status = ' '.join(status.split('-'))
+            status = ''.join(status.split('-'))
             pageTitle = f"Manage {status.capitalize()} {trip.From} to {trip.to} Passengers"
-            passeng = PassengerTrip.query.filter_by(status=status)
-            passengers = to_dict(passeng, PassengerTrip)
-            passengers['passenger'] = to_dict(passeng.passenger, Passenger)
+            records = PassengerTrip.query.filter_by(trip_id=id, status=status).all()
+            passengers = parse_record(records, PassengerTrip, passenger=Passenger)
         
         if request.method == "POST" and 'addPassenger' in request.form:
             # Create variables for easy access

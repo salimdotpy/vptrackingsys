@@ -42,7 +42,7 @@ def removeFile(path):
     return False
 
 def siteName():
-    return ['Vehicle and Passenger Tracking System', 'VP Tracking System'] 
+    return ['Vehicle and Passengers Tracking System', 'VP Tracking System'] 
 
 def to_dict(record, table):
     try:
@@ -129,3 +129,19 @@ def parseIfJson(field):
         return json.loads(field)
     except:
         return field
+
+def parse_record(records, table, **kwargs):
+    if records and type(records) == dict:
+        result = to_dict(records, table)
+        for key, val_table in kwargs.items():
+            result[key] = to_dict(getattr(records, key), val_table)
+    elif records and type(records) == list:
+        result = []
+        for r in records:
+            record = to_dict(r, table)
+            for key, val_table in kwargs.items():
+                record[key] = to_dict(getattr(r, key), val_table)
+            result.append(record)
+    else:
+        result = None
+    return result

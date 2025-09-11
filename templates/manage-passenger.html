@@ -67,12 +67,12 @@
               >
               <a
                 class="dropdown-item"
-                href="{{ url_for('driver.passengers', id=trip.id, status='signed-in') }}"
+                href="{{ url_for('driver.passengers', id=trip.id, status='sign-in') }}"
                 >Signed in</a
               >
               <a
                 class="dropdown-item"
-                href="{{ url_for('driver.passengers', id=trip.id, status='signed-out') }}"
+                href="{{ url_for('driver.passengers', id=trip.id, status='sign-out') }}"
                 >Signed out</a
               >
             </div>
@@ -127,6 +127,9 @@
                   <button
                     type="button"
                     class="btn btn-primary btn-sm text-nowrap"
+                    data-bs-toggle="modal"
+                    data-action="logout"
+                    data-bs-target="#passengerCrud"
                   >
                     Sign out
                   </button>
@@ -173,7 +176,7 @@
                 <div
                   class="card-header fw-bold d-flex flex-wrap align-items-center"
                 >
-                  <span>Passenger Information</span>
+                  <span>Scan QR-Code</span>
                   <button
                     id="startBtn"
                     class="btn btn-primary btn-sm ms-auto"
