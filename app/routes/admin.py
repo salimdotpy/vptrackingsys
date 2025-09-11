@@ -13,8 +13,8 @@ def dashboard():
     widget = {}
     if 'admin' in session:
         admin = Admin.query.get(session['admin']['id'])
-        widget['new_driver'] = db.session.query(Vehicle).filter_by(status=False).count()
-        widget['old_driver'] = db.session.query(Vehicle).filter_by(status=True).count()
+        widget['new_driver'] = Vehicle.query.filter_by(status=False).count()
+        widget['old_driver'] = Vehicle.query.filter_by(status=True).count()
         widget['passengers'] = Passenger.query.count()
         return render_template('admin/dashboard.html', pageTitle=pageTitle, admin=admin, widget=widget)
     flash('Please login first!', ('warning'))

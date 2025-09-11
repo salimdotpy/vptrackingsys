@@ -13,10 +13,10 @@ def dashboard():
     widget = {}
     if 'driver' in session:
         driver = Vehicle.query.get(session['driver']['id'])
-        widget['danger_trip'] = db.session.query(Trip).filter_by(status='danger').count()
-        widget['pending_trip'] = db.session.query(Trip).filter_by(status='pending').count()
-        widget['success_trip'] = db.session.query(Trip).filter_by(status='success').count()
-        widget['logs'] = TripLog.query.count()
+        widget['danger_trip'] = Trip.query.filter_by(vehicle_id=driver.id, status='danger').count()
+        widget['pending_trip'] = Trip.query.filter_by(vehicle_id=driver.id, status='pending').count()
+        widget['success_trip'] = Trip.query.filter_by(vehicle_id=driver.id, status='success').count()
+        widget['logs'] = TripLog.query.filter_by(vehicle_id=driver.id).count()
         return render_template('dashboard.html', pageTitle=pageTitle, driver=driver, widget=widget)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login'))
