@@ -12,7 +12,7 @@ def getImage(image):
     filename = url_for('static', filename=imagePath(image))[1:]
     if os.path.exists(filename) and os.path.isfile(filename):
         return url_for('static', filename=imagePath(image))
-    return url_for('static', filename='images/default.png')
+    return url_for('static', filename='images/noimage.png')
 
 def getPassenger(id):
     passenger = Passenger.query.get(id)
