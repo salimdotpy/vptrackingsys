@@ -125,6 +125,43 @@ def passengers(id, status=None):
     flash('Please login first!', ('warning'))
     return redirect(url_for('login'))
 
+@drive_bp.route("/trip-logs", methods=['GET', 'POST'])
+@drive_bp.route("/trip-logs/<id>", methods=['GET', 'POST'])
+@drive_bp.route("/trip-logs/<id>/<status>", methods=['GET', 'POST'])
+def triplogs(id=None, status=None):
+    if 'driver' in session:
+        driver = Vehicle.query.get(session['driver']['id']); trip=None
+        if id:
+            trip = Trip.query.get(id)
+            records = TripLog.query.filter_by(trip_id=id).all()
+            logs = parse_record(records, TripLog, passenger=Passenger)
+            pageTitle = f"Manage {trip.From} to {trip.to} Logs"
+            if status:
+                status = ''.join(status.split('-'))
+                pageTitle = f"Manage {status.capitalize()} {trip.From} to {trip.to} Logs"
+                records = TripLog.query.filter_by(trip_id=id, status=status).all()
+                logs = parse_record(records, TripLog, passenger=Passenger)
+        else:
+            records = TripLog.query.filter(TripLog.trip.has(vehicle_id=driver.id)).all()
+            logs = parse_record(records, TripLog, passenger=Passenger)
+            pageTitle = f"Manage Trip Logs"
+            if status:
+                status = ''.join(status.split('-'))
+                pageTitle = f"Manage {status.capitalize()} Trip Logs"
+                records = TripLog.query.filter(TripLog.trip.has(vehicle_id=driver.id), TripLog.status==status).all()
+                logs = parse_record(records, TripLog, passenger=Passenger)
+
+        if request.method == "POST" and 'addLog' in request.form:
+            # Create variables for easy access
+            passenger_id = request.form.get("id")
+            latitude = request.form.get("lat")
+            longitude = request.form.get("lng")
+            return redirect(request.referrer)
+        
+        return render_template('manage-triplog.html', pageTitle=pageTitle, driver=driver, logs=logs, trip=trip)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('login'))
+
 @drive_bp.route("/profile", methods=['POST'], endpoint="profile")
 def profileUpdate():
     if 'driver' in session:
