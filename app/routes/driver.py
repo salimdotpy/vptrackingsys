@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify
 from ..models import Trip, TripLog, PassengerTrip, Passenger, Vehicle, db
 from werkzeug.security import generate_password_hash
 from sqlalchemy import or_
@@ -80,18 +80,18 @@ def passengers(id, status=None):
             records = PassengerTrip.query.filter_by(trip_id=id, status=status).all()
             passengers = parse_record(records, PassengerTrip, passenger=Passenger)
         
-        if request.method == "POST" and 'addPassenger' in request.form:
+        if request.method == "POST" and 'add_passenger' in request.form:
             # Create variables for easy access
-            passenger_id = request.form.get("passenger_id")
-            latitude = request.form.get("latitude")
-            longitude = request.form.get("longitude")
+            passenger_id = request.form.get("id")
+            latitude = request.form.get("lat")
+            longitude = request.form.get("lng")
             # Validation checks
             checkTrip  = PassengerTrip.query.filter_by(passenger_id=passenger_id, trip_id=id).first()
             for key, val in request.form.items():
-                if (key not in ['addPassenger'] and not val):
-                    msg = ['Please fill out the form!', 'error']
+                if (key not in ['add_passenger'] and not val):
+                    msg = ['Unable to retrieve users location!', 'error']
             if checkTrip:
-                msg = ["This passenger already signed in to this trip!", 'error']
+                msg = ["This passenger already signed in to this trip!", 'warning']
             else:
                 passenger = PassengerTrip(passenger_id=passenger_id, trip_id=id, latitude=latitude, longitude=longitude, status='signin')
                 db.session.add(passenger)
@@ -101,8 +101,26 @@ def passengers(id, status=None):
                 except:
                     db.session.rollback()
                     msg = ['Unable to sign passenger in, please try again later!', 'error']
-            flash(msg[0], (msg[1]))
-            return redirect(request.referrer)
+            return jsonify({"msg": msg[0], "icon": msg[1]})
+        
+        if request.method == "POST" and 'remove_passenger' in request.form:
+            # Create variables for easy access
+            passenger_id = request.form.get("id")
+            # Validation checks
+            checkTrip  = PassengerTrip.query.filter_by(passenger_id=passenger_id, trip_id=id).first()
+            if not checkTrip:
+                msg = ["This passenger not found in this trip", 'error']
+            elif checkTrip.status == "signout":
+                msg = ["This passenger already signed out!", 'warning']
+            else:
+                checkTrip.status = "signout"
+                try:
+                    db.session.commit()
+                    msg = ['Passenger signed out successfully!', 'success']
+                except:
+                    db.session.rollback()
+                    msg = ['Unable to sign passenger out, please try again later!', 'error']
+            return jsonify({"msg": msg[0], "icon": msg[1]})
         return render_template('manage-passenger.html', pageTitle=pageTitle, driver=driver, passengers=passengers, trip=trip)
     flash('Please login first!', ('warning'))
     return redirect(url_for('login'))
