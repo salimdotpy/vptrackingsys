@@ -83,7 +83,7 @@
     </a>
   </div>
   <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3">
-    <a href="">
+    <a href="{{ url_for('admin.trips', status='pending') }}">
       <div
         class="card rounded-4 shadow border-0 border-start border-bottom border-3 border-info"
       >
@@ -93,7 +93,7 @@
               <i class="fa fa-circle fa-stack-2x text-info"></i>
               <i class="fa fa-plane fa-stack-1x fa-inverse"></i>
             </span>
-            <h2 class="fs-1 m-0 text-info fw-bold">5</h2>
+            <h2 class="fs-1 m-0 text-info fw-bold">{{ widget.trips }}</h2>
           </div>
           <p class="card-text fw-bold mb-0">Ongoing Trips</p>
           <small class="text-muted small">View now</small>

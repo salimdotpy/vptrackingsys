@@ -16,6 +16,7 @@ def dashboard():
         widget['new_driver'] = Vehicle.query.filter_by(status=False).count()
         widget['old_driver'] = Vehicle.query.filter_by(status=True).count()
         widget['passengers'] = Passenger.query.count()
+        widget['trips'] = Trip.query.filter(Trip.status.in_(["pending", "start"])).count()
         return render_template('admin/dashboard.html', pageTitle=pageTitle, admin=admin, widget=widget)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login')+'#admin')
@@ -267,6 +268,58 @@ def trips(status=None):
             records = Trip.query.filter_by(status=status).all()
             trips = parse_record(records, Trip, passengers=PassengerTrip, vehicle=Vehicle)
         return render_template('admin/manage-trip.html', pageTitle=pageTitle, admin=admin, trips=trips)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('auth.login')+'#admin')
+
+@admin_bp.route("/trip/passengers/<id>", methods=['GET', 'POST'])
+@admin_bp.route("/trip/passengers/<id>/<status>", methods=['GET', 'POST'])
+def ptrips(id, status=None):
+    if not id:
+        return redirect(request.referrer)
+    if 'admin' in session:
+        admin = Admin.query.get(session['admin']['id'])
+        trip = Trip.query.get(id)
+        records = PassengerTrip.query.filter_by(trip_id=id).all()
+        passengers = parse_record(records, PassengerTrip, passenger=Passenger)
+        pageTitle = f"Manage {trip.From} to {trip.to} Passengers"
+        if status:
+            status = ''.join(status.split('-'))
+            pageTitle = f"Manage {status.capitalize()} {trip.From} to {trip.to} Passengers"
+            records = PassengerTrip.query.filter_by(trip_id=id, status=status).all()
+            passengers = parse_record(records, PassengerTrip, passenger=Passenger)
+        
+        return render_template('admin/manage-ptrip.html', pageTitle=pageTitle, admin=admin, passengers=passengers, trip=trip)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('auth.login')+'#admin')
+
+@admin_bp.route("/trip-logs", methods=['GET', 'POST'])
+@admin_bp.route("/trip-logs/<id>", methods=['GET', 'POST'])
+@admin_bp.route("/trip-logs/<status>", methods=['GET', 'POST'])
+@admin_bp.route("/trip-logs/<id>/<status>", methods=['GET', 'POST'])
+def triplogs(id=None, status=None):
+    if 'admin' in session:
+        admin = Admin.query.get(session['admin']['id']); trip=None
+        if id:
+            trip = Trip.query.get(id)
+            records = TripLog.query.filter_by(trip_id=id).all()
+            logs = parse_record(records, TripLog, passenger=Passenger)
+            pageTitle = f"Manage {trip.From} to {trip.to} Logs"
+            if status:
+                status = ''.join(status.split('-'))
+                pageTitle = f"Manage {status.capitalize()} {trip.From} to {trip.to} Logs"
+                records = TripLog.query.filter_by(trip_id=id, status=status).all()
+                logs = parse_record(records, TripLog, passenger=Passenger)
+        else:
+            records = TripLog.query.all()
+            logs = parse_record(records, TripLog, passenger=Passenger)
+            pageTitle = f"Manage Trip Logs"
+            if status:
+                status = ''.join(status.split('-'))
+                pageTitle = f"Manage {status.capitalize()} Trip Logs"
+                records = TripLog.query.filter(TripLog.status==status).all()
+                logs = parse_record(records, TripLog, passenger=Passenger)
+
+        return render_template('admin/manage-triplog.html', pageTitle=pageTitle, admin=admin, logs=logs, trip=trip)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login')+'#admin')
 

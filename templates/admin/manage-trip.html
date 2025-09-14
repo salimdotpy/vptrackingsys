@@ -34,6 +34,11 @@
               >
               <a
                 class="dropdown-item"
+                href="{{ url_for('admin.trips', status='start') }}"
+                >Started</a
+              >
+              <a
+                class="dropdown-item"
                 href="{{ url_for('admin.trips', status='pending') }}"
                 >Pending</a
               >
@@ -109,7 +114,7 @@
                     </a>
                     <a
                       class="btn btn-info btn-sm"
-                      href="{{ url_for('driver.passengers', id=trip.id) }}"
+                      href="{{ url_for('admin.ptrips', id=trip.id) }}"
                       data-bs-toggle="tooltip"
                       data-bs-placement="left"
                       title="View {{ trip.passengers|count }} Passenger in this trip"
