@@ -1,2 +1,3 @@
 templates/admin/manage-passenger.html
 templates/admin/manage-driver.html
+templates/admin/manage-trip.html

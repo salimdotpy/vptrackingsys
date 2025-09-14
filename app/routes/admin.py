@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
-from ..models import Passenger, Vehicle, Admin, db
+from ..models import *
 from sqlalchemy import or_
-from ..utils import to_dict, uploadImage, imagePath, getImageSize
+from ..utils import to_dict, uploadImage, imagePath, getImageSize, parse_record
 from werkzeug.security import generate_password_hash
 import re
 
@@ -251,6 +251,22 @@ def drivers(status=None):
             flash(msg[0], (msg[1]))
             return redirect(request.referrer)
         return render_template('admin/manage-driver.html', pageTitle=pageTitle, admin=admin, drivers=drivers)
+    flash('Please login first!', ('warning'))
+    return redirect(url_for('auth.login')+'#admin')
+
+@admin_bp.route("/trips", methods=['GET', 'POST'])
+@admin_bp.route("/trips/<status>", methods=['GET', 'POST'])
+def trips(status=None):
+    if 'admin' in session:
+        admin = Admin.query.get(session['admin']['id'])
+        records = Trip.query.all()
+        trips = parse_record(records, Trip, passengers=PassengerTrip, vehicle=Vehicle)
+        pageTitle = f"Manage Trips"
+        if status:
+            pageTitle = f"Manage {status.capitalize()} Trips"
+            records = Trip.query.filter_by(status=status).all()
+            trips = parse_record(records, Trip, passengers=PassengerTrip, vehicle=Vehicle)
+        return render_template('admin/manage-trip.html', pageTitle=pageTitle, admin=admin, trips=trips)
     flash('Please login first!', ('warning'))
     return redirect(url_for('auth.login')+'#admin')
 

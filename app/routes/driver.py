@@ -61,7 +61,7 @@ def trips(status=None):
             return redirect(request.referrer)
         return render_template('manage-trip.html', pageTitle=pageTitle, driver=driver, trips=trips)
     flash('Please login first!', ('warning'))
-    return redirect(url_for('login'))
+    return redirect(url_for('auth.login'))
 
 @drive_bp.route("/passengers/<id>", methods=['GET', 'POST'])
 @drive_bp.route("/passengers/<id>/<status>", methods=['GET', 'POST'])
@@ -123,7 +123,7 @@ def passengers(id, status=None):
             return jsonify({"msg": msg[0], "icon": msg[1]})
         return render_template('manage-passenger.html', pageTitle=pageTitle, driver=driver, passengers=passengers, trip=trip)
     flash('Please login first!', ('warning'))
-    return redirect(url_for('login'))
+    return redirect(url_for('auth.login'))
 
 @drive_bp.route("/trip-logs", methods=['GET', 'POST'])
 @drive_bp.route("/trip-logs/<id>", methods=['GET', 'POST'])
@@ -160,7 +160,7 @@ def triplogs(id=None, status=None):
         
         return render_template('manage-triplog.html', pageTitle=pageTitle, driver=driver, logs=logs, trip=trip)
     flash('Please login first!', ('warning'))
-    return redirect(url_for('login'))
+    return redirect(url_for('auth.login'))
 
 @drive_bp.route("/profile", methods=['POST'], endpoint="profile")
 def profileUpdate():
@@ -200,7 +200,7 @@ def profileUpdate():
         flash(msg[0], (msg[1]))
         return redirect(request.referrer)
     flash('Please login first!', ('warning'))
-    return redirect(url_for('login'))
+    return redirect(url_for('auth.login'))
 
 @drive_bp.route("/password", methods=['POST'], endpoint="password")
 def passwordUpdate():
@@ -229,7 +229,7 @@ def passwordUpdate():
         flash(msg[0], (msg[1]))
         return redirect(request.referrer)
     flash('Please login first!', ('warning'))
-    return redirect(url_for('login'))
+    return redirect(url_for('auth.login'))
 
 @drive_bp.route("/logout")
 def logout():

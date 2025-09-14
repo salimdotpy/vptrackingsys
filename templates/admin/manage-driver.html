@@ -70,8 +70,8 @@
               <tr>
                 <td>{{loop.index}}</td>
                 <td>{{driver.name}}</td>
-                <td>{{ driver.mobile }}</td>
-                <td>{{ driver.email }}</td>
+                <td><a href="tel:{{ driver.mobile }}" class="text-primary">{{ driver.mobile }}</a></td>
+                <td><a href="mailto:{{ driver.email }}" class="text-primary">{{ driver.email }}</a></td>
                 <td class="small">
                   <small>
                     <b>Number: </b>{{ driver.vehicle_info.vehicleNumber }},

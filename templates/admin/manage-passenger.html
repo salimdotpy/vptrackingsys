@@ -52,8 +52,8 @@
               <tr>
                 <td>{{loop.index}}</td>
                 <td>{{passenger.name}}</td>
-                <td>{{ passenger.mobile }}</td>
-                <td>{{ passenger.email }}</td>
+                <td><a href="tel:{{ passenger.mobile }}" class="text-primary">{{ passenger.mobile }}</a></td>
+                <td><a href="mailto:{{ passenger.email }}" class="text-primary">{{ passenger.email }}</a></td>
                 <td class="small">
                   <small>
                     <b>Name: </b>{{ passenger.nok_info.nokname }},

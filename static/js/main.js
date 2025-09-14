@@ -374,7 +374,7 @@ function removeGarage(e) {
 }
 
 const tooltipTriggerList = document.querySelectorAll(
-  '[data-bs-toggle="tooltip"]'
+  '[data-bs-toggle="tooltip"], [data-bs-toggle1="tooltip"]'
 );
 
 const tooltipList = [...tooltipTriggerList].map(

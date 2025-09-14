@@ -1,0 +1,211 @@
+{% extends 'admin/layout.html' %}{% block content %}
+<nav class="breadcrumb">
+  <a class="breadcrumb-item" href="{{ url_for('admin.dashboard') }}"
+    >Dashboard</a
+  >
+  <span class="breadcrumb-item active" aria-current="page">{{pageTitle}}</span>
+</nav>
+
+<div class="row g-3">
+  <div class="col-md-12">
+    <div class="card rounded-4 shadow">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <b>{{pageTitle}}</b>
+          <div class="dropdown open">
+            <a
+              class="btn btn-outline-primary dropdown-toggle"
+              type="button"
+              id="triggerId"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Filter
+            </a>
+            <div class="dropdown-menu" aria-labelledby="triggerId">
+              <a class="dropdown-item" href="{{ url_for('admin.trips') }}"
+                >All</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('admin.trips', status='success') }}"
+                >Success</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('admin.trips', status='pending') }}"
+                >Pending</a
+              >
+              <a
+                class="dropdown-item"
+                href="{{ url_for('admin.trips', status='danger') }}"
+                >Danger</a
+              >
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div>
+          <table
+            id="trips"
+            class="table table-bordered table-hover table-responsive w-100"
+            style="height: 5px !important"
+          >
+            <thead>
+              <tr>
+                <th>S/N</th>
+                <th>Driver Info</th>
+                <th>Vehicle Info</th>
+                <th>Trip Info</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if trips %} {% for trip in trips %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td class="small" style="min-width: 170px;">
+                  <small>
+                    <b>Name: </b>{{ trip.vehicle.name }},<br />
+                    <b>Mobile: </b><a href="tel:{{ trip.vehicle.mobile }}" class="text-primary">{{ trip.vehicle.mobile }}</a>,<br />
+                    <b>Email: </b><a href="mailto:{{ trip.vehicle.email }}" class="text-primary">{{ trip.vehicle.email }}</a>
+                  </small>
+                </td>
+                <td class="small" style="min-width: 140px;">
+                  <small>
+                    <b>Number: </b>{{ trip.vehicle.vehicle_info.vehicleNumber }},
+                    <b>Type: </b> {{ trip.vehicle.vehicle_info.vehicleType }},
+                    <b>Model: </b> {{ trip.vehicle.vehicle_info.model }},
+                    <b>Capacity: </b> {{ trip.vehicle.vehicle_info.capacity }},
+                    <b>Plate Number: </b> {{ trip.vehicle.vehicle_info.plateNumber }},
+                  </small>
+                </td>
+                <td class="small" style="min-width: 140px;">
+                  <small>
+                    <b>From: </b>{{ trip.From }},<br />
+                    <b>To: </b> {{ trip.to }},<br />
+                    <b>Description: </b> {{ trip.description }}<br />
+                    <b>No of Passenger: </b> {{ trip.passengers|count }}
+                  </small>
+                </td>
+                <td>
+                  <span
+                    class="badge rounded-pill {% if trip.status in ['pending', 'start'] %}text-bg-info{% else %}text-bg-{{trip.status}}{% endif %}"
+                    >{{trip.status|title}}</span
+                  >
+                </td>
+                <td>{{trip.updated_at.strftime("%a, %d %b %Y at %H:%M")}}</td>
+                <td class="text-right">
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="Button group name"
+                  >
+                    <a class="btn btn-primary btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-toggle1="tooltip" data-bs-placement="left" data-bs-target="#statusModal" title="Change Status" data-obj='{{trip|tojson}}'>
+                      <i class="fa fa-edit"></i>
+                    </a>
+                    <a
+                      class="btn btn-info btn-sm"
+                      href="{{ url_for('driver.passengers', id=trip.id) }}"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="left"
+                      title="View {{ trip.passengers|count }} Passenger in this trip"
+                    >
+                      <i class="fa fa-laptop"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {%else%}
+              <tr>
+                No record found
+              </tr>
+              {% endfor %} {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<div
+  class="modal fade"
+  id="statusModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modalTitleId"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" style="margin-top: 15%" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modalTitleId">
+          Update Trip Status
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <a id="statusLink" href="javascript:void(0)" class="btn btn-primary">Update</a>
+      </div>
+    </div>
+  </div>
+</div>
+mod
+<script>
+  $(document).ready(function () {
+    $('.app-name').text('{{pageTitle}}');
+    $('.fa-power-off').hide();
+    $('#trips').DataTable();
+    $('#trips_wrapper').addClass('table-responsive');
+  });
+
+  $('#statusModal').on('show.bs.modal', function (event) {
+    let ele = $(event.relatedTarget);
+    let action = ele.data('action');
+    let data = ele.data("obj");
+    let content = `
+    <div class="mb-3">
+          <label for="cstatus" class="form-label">Trip Status</label>
+          <select name="status" id="cstatus" class="form-control" onchange="changeStatus(this, ${data.id})">
+            <option value="${data.status}">${data.status[0].toUpperCase()+data.status.slice(1)}</option>
+    `;
+    const options = ["pending", "start", "success", "danger"];
+    for (const opt of options) {
+      if (opt != data.status) {
+        content += `<option value="${opt}">${opt[0].toUpperCase()}${opt.slice(1)}</option>`
+      }
+    }
+    content +=  `
+              </select>
+            </div>`;
+      $(this).find('.modal-body').html(content);
+      $("#statusLink").attr('href', `/api/updata-status/Trip/${data.id}/status/${data.status}`)
+  });
+  $('#deleteModal').on('hidden.bs.modal', function (event) {
+    // window.location.reload();
+    let ele = $(event.currentTarget);
+    ele = ele.find('#status').val();
+    let toggleElement = $(`#status-${ele}`);
+    toggleElement.toggleClass('toggle-transform');
+  });
+
+  function changeStatus(e, id) {
+    let status = $(e).val();
+    $("#statusLink").attr('href', `/api/updata-status/Trip/${id}/status/${status}`)
+  }
+</script>
+{% endblock %}
